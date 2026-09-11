@@ -1,10 +1,10 @@
-.env*
-*.pem
-*.key
 .tmp/
 scratch/
-assets/source/
-fonts/source-zips/
-**/private_uploads/
-**/backups/
-**/sessions/
+
+# Local editor backup snapshots are useful on the box, but noisy in deploy commits.
+stuffworked-on-a-bit/rhps/data/backups/
+
+# OS/editor clutter
+.DS_Store
+Thumbs.db
+*.swp

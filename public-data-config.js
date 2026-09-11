@@ -1,9 +1,11 @@
 /*
  * Deployment-only public data settings.
- * The public deployment reads live JSON and public uploads from the HTTPS
- * storage host. Private editor files are never referenced here.
+ * Leave these blank for the local JSON files. On GitHub Pages, set dataBaseUrl
+ * to the HTTPS bucket prefix that contains events.json, venues.json,
+ * site.json, and promos.json, for example:
+ *   https://storage.blrocky.com/data
  */
 window.BLROCKY_CONFIG = window.BLROCKY_CONFIG || {
-  dataBaseUrl: "https://storage.blrocky.com/data",
-  assetBaseUrl: "https://storage.blrocky.com"
+  dataBaseUrl: "",
+  assetBaseUrl: ""
 };
