@@ -1305,3 +1305,5 @@ This file records concrete project changes made during assisted work. Each entry
 - Generated `state_sign_alpha.webm` on `blrocky-editor-1` with ffmpeg black-keying and VP9 alpha metadata so the State Theatre marquee can render without the black video background.
 - Updated the State Theatre video markup to prefer the alpha WebM and keep `state_sign.mp4` as the fallback source.
 - Changed the green sonic oscillator burst from viewport-fixed positioning to document-positioned coordinates so it stays down by the pole switch area after it fires instead of sticking to the screen while scrolling.
+- Published the State alpha asset and pole burst scroll fix to `blrocky/blrocky.com` at commit `708d4c5`; raw GitHub verifies the new asset and source references while GitHub Pages edge propagation is still catching up.
+- Followed up after visual testing showed the State marquee still looked black: changed `.state-marquee-stage` from `background: #000` to `background: transparent` and regenerated the alpha WebM with a stronger black-key threshold.
