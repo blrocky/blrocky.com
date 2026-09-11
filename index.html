@@ -3818,9 +3818,12 @@
   <script>
     const body = document.body;
     const publicConfig = window.BLROCKY_CONFIG || {};
+    const dataCacheKey = String(publicConfig.dataVersion || Date.now().toString(36));
+    const withDataCacheKey = (url) => `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(dataCacheKey)}`;
     const dataUrl = (fileName) => {
       const base = String(publicConfig.dataBaseUrl || "").replace(/\/+$/, "");
-      return base ? `${base}/${fileName}` : `./stuffworked-on-a-bit/rhps/data/${fileName}`;
+      const url = base ? `${base}/${fileName}` : `./stuffworked-on-a-bit/rhps/data/${fileName}`;
+      return withDataCacheKey(url);
     };
     const assetUrl = (value) => {
       const raw = String(value || "");
