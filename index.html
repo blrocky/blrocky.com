@@ -56,9 +56,14 @@
     .generic-event-region {
       cursor: pointer;
     }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
     body {
       margin: 0;
+      max-width: 100%;
+      overflow-x: hidden;
       font: 1rem/1.5 var(--font-body);
       color: var(--ink);
       background:
@@ -67,7 +72,8 @@
       padding-bottom: 86px;
     }
     body.is-intro-running {
-      overflow: visible;
+      overflow-x: hidden;
+      overflow-y: visible;
     }
     a { color: inherit; }
     button { font: inherit; }
@@ -233,6 +239,8 @@
 
     #time-warp-text {
       min-height: 132px;
+      min-width: 0;
+      max-width: 100%;
       font-size: clamp(1.8rem, 6vw, 4.8rem);
       line-height: 1;
       font-family: var(--font-rocky);
@@ -922,7 +930,7 @@
       overflow: hidden;
       isolation: isolate;
       container-type: inline-size;
-      background: #000;
+      background: transparent;
     }
 
     #state-show-card {
@@ -1886,6 +1894,7 @@
     }
 
     #animation-controls {
+      position: relative;
       padding: 24px 0 116px;
       border-top: 1px solid var(--line);
     }
@@ -2018,6 +2027,8 @@
 
     .sonic-oscillator-burst {
       position: absolute;
+      left: auto;
+      top: auto;
       z-index: 175;
       display: none;
       width: min(50vw, var(--burst-width, 50vw));
@@ -3103,7 +3114,9 @@
     }
 
     body.mobile-display .page-shell {
-      width: min(100% - 20px, 760px);
+      width: calc(100% - 20px);
+      max-width: 760px;
+      min-width: 0;
     }
 
     body.mobile-display .site-header {
@@ -3128,6 +3141,8 @@
 
     body.mobile-display #time-warp-text {
       width: 100%;
+      min-width: 0;
+      max-width: 100%;
       min-height: clamp(116px, 32vw, 148px);
       display: grid;
       align-content: center;
@@ -3136,15 +3151,35 @@
     }
 
     body.mobile-display #time-warp-text::before {
-      content: "Let's Do\A The Time Warp\A Again";
+      display: none;
+    }
+
+    body.mobile-display #time-warp-text .time-warp-line {
       display: block;
-      white-space: pre;
+      width: 100%;
+      max-width: 100%;
+      overflow: visible;
+      white-space: nowrap;
       text-align: center;
     }
 
-    body.mobile-display .time-warp-line,
-    body.mobile-display .time-warp-word {
-      display: none;
+    body.mobile-display #time-warp-text .time-warp-line:nth-child(1) {
+      font-size: clamp(1.2rem, 7.4vw, 2.55rem);
+    }
+
+    body.mobile-display #time-warp-text .time-warp-line:nth-child(2) {
+      font-size: clamp(1.12rem, 6.25vw, 2.35rem);
+    }
+
+    body.mobile-display #time-warp-text .time-warp-line:nth-child(3) {
+      font-size: clamp(1.2rem, 7vw, 2.45rem);
+    }
+
+    body.mobile-display #time-warp-text .time-warp-word {
+      display: inline-block;
+      opacity: 1;
+      transform: none;
+      filter: none;
     }
 
     body.mobile-display .shows-layout {
@@ -3338,6 +3373,10 @@
       width: clamp(58px, 20vw, 92px);
       max-width: none;
       margin: 0;
+    }
+
+    body.mobile-display .phoenix-logo-wrap {
+      transform-origin: left top;
     }
 
     body.mobile-display .curran-sign-wrap {
@@ -3846,17 +3885,17 @@
           <button class="pole-label pole-label-right-bottom" type="button" data-display-pole="size" aria-label="Toggle desktop or mobile display mode">Mobile</button>
         </div>
       </div>
+      <div id="sonic-oscillator-burst" class="sonic-oscillator-burst" aria-hidden="true">
+        <svg viewBox="0 0 600 50" focusable="false">
+          <path class="wave wave-primary"></path>
+          <path class="wave wave-secondary"></path>
+        </svg>
+      </div>
     </section>
   </main>
 
   <div id="screen-switch-flash" class="screen-switch-flash" aria-hidden="true">
     <img alt="">
-  </div>
-  <div id="sonic-oscillator-burst" class="sonic-oscillator-burst" aria-hidden="true">
-    <svg viewBox="0 0 600 50" focusable="false">
-      <path class="wave wave-primary"></path>
-      <path class="wave wave-secondary"></path>
-    </svg>
   </div>
 
   <div id="show-details-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="show-details-title">
@@ -3924,6 +3963,9 @@
       const url = base ? `${base}/${fileName}` : `./stuffworked-on-a-bit/rhps/data/${fileName}`;
       return withDataCacheKey(url);
     };
+    const previewData = window.BLROCKY_PREVIEW_DATA && typeof window.BLROCKY_PREVIEW_DATA === "object"
+      ? window.BLROCKY_PREVIEW_DATA
+      : {};
     const requiredDataFiles = ["site.json", "events.json", "venues.json", "promos.json"];
     const dataJsonCache = new Map();
     let storagePreflightPromise = null;
@@ -3951,6 +3993,9 @@
       });
     };
     const fetchDataJson = async (fileName) => {
+      if (Object.prototype.hasOwnProperty.call(previewData, fileName)) {
+        return previewData[fileName];
+      }
       if (dataJsonCache.has(fileName)) return dataJsonCache.get(fileName);
       const request = fetch(dataUrl(fileName), { cache: "no-store" }).then((response) => {
         if (!response.ok) throw new Error(`Could not load ${fileName}: HTTP ${response.status}`);
@@ -4239,12 +4284,15 @@
 
     const positionSonicBurst = () => {
       if (!sonicOscillatorBurst || !displayPoleControl) return;
+      const controls = document.querySelector("#animation-controls");
+      if (!controls) return;
+      const controlsRect = controls.getBoundingClientRect();
       const rect = displayPoleControl.getBoundingClientRect();
-      const originX = rect.left + (rect.width * 0.5);
-      const originY = rect.top + (rect.height * 0.5);
-      const width = Math.min(window.innerWidth * 0.5, Math.max(120, originX - 12));
-      sonicOscillatorBurst.style.left = `${Math.max(8, window.scrollX + originX - width)}px`;
-      sonicOscillatorBurst.style.top = `${Math.max(8, window.scrollY + originY - 25)}px`;
+      const originX = rect.left - controlsRect.left + (rect.width * 0.5);
+      const originY = rect.top - controlsRect.top + (rect.height * 0.5);
+      const width = Math.min(controlsRect.width * 0.5, Math.max(120, originX - 12));
+      sonicOscillatorBurst.style.left = `${Math.max(8, originX - width)}px`;
+      sonicOscillatorBurst.style.top = `${Math.max(8, originY - 25)}px`;
       sonicOscillatorBurst.style.setProperty("--burst-width", `${width}px`);
     };
 
@@ -6541,13 +6589,21 @@
         if (!raw) return "";
         return raw.endsWith("%") ? raw : `${raw}%`;
       };
+      const flyerRegionHref = (region, event) => {
+        const target = String(region?.url || "").trim();
+        const tag = target.match(/^<(ticket-link(?:-\d+)?|directions-link|theater-link|(calendar-link|calandar-link|calndar-link)(?:-\d+|-next)?)(?:\((\d+|next)\))?>$/i);
+        if (!tag) return target;
+        return taggedLinkHref(tag[1], event, null, calendarIndexToken(tag[1], tag[3] || ""), "");
+      };
       const addFlyerRegions = (flyer, event) => {
         const regions = Array.isArray(event.flyerClickRegions) ? event.flyerClickRegions : [];
         regions.forEach((region) => {
           if (!region?.url || !region?.widthPct || !region?.heightPct) return;
+          const href = flyerRegionHref(region, event);
+          if (!href || href === "#") return;
           const anchor = document.createElement("a");
           anchor.className = "generic-event-region";
-          anchor.href = region.url;
+          anchor.href = href;
           anchor.setAttribute("aria-label", region.label || "Flyer link");
           anchor.style.left = normalizePct(region.leftPct);
           anchor.style.top = normalizePct(region.topPct);
