@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Sparkle">
+  <defs>
+    <radialGradient id="soft-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset=".22" stop-color="#fff6c7" stop-opacity=".62"/>
+      <stop offset=".68" stop-color="#ffe08a" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ffe08a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ray" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="56" fill="url(#soft-glow)"/>
+  <path fill="#fffdf1" d="M60 5 70 48 115 60 70 72 60 115 50 72 5 60 50 48z"/>
+  <path fill="url(#ray)" d="M56 12h8v96h-8z"/>
+  <path fill="url(#ray)" d="M12 56h96v8H12z"/>
+  <circle cx="60" cy="60" r="8" fill="#fff"/>
+</svg>

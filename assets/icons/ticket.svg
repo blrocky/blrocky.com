@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 182 139" role="img" aria-label="Ticket">
+  <path fill="#050505" stroke="#f8eef2" stroke-width="3" stroke-linejoin="round" d="M11 57h139l10 31-149 0z"/>
+  <path fill="#050505" stroke="#f8eef2" stroke-width="3" stroke-linejoin="round" d="M13 32h116l27 74H13z"/>
+  <path fill="#050505" d="M4 66a11 11 0 0 1 0 22h16V66zM156 66a11 11 0 0 0 0 22h18V66z"/>
+  <path fill="#f8eef2" d="M135 42h7v9h-7zM135 57h7v9h-7zM135 72h7v9h-7zM135 87h7v9h-7zM135 102h7v9h-7z"/>
+  <text x="38" y="88" fill="#f8eef2" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-size="28" font-weight="900" letter-spacing="1">TICKET</text>
+</svg>
