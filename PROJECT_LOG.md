@@ -1282,3 +1282,11 @@ This file records concrete project changes made during assisted work. Each entry
 - Deferred the main page's heavy visual sources until storage passes: marquee images, logo/shop/decorative images, switch art, coffin art, static direction icons, and join-cast laser media. The intro video and offline/social fallback icons still load immediately.
 - If storage fails, the page shows the server-offline/social fallback, stops media, and avoids hydrating the old placeholder event DOM.
 - Published the change to `blrocky/blrocky.com` at commit `668e3e8` and verified a fresh clone contains the new preflight/deferred-asset code.
+
+### Apex DNS Cutover CORS Diagnosis
+- Date: 2026-09-11 10:05:00 PDT
+- Files touched: `CNAME`, `ops/gcloud/storage-cors.json`, `PROJECT_LOG.md`
+- After the DNS cutover, verified `storage.blrocky.com` was online and returning HTTP 200 for public JSON, while `blrocky.com` was being redirected by GitHub Pages to `www.blrocky.com`.
+- Found that bucket CORS allowed `https://blrocky.com` but not `https://www.blrocky.com`, causing the new storage preflight to fail from the `www` origin and show the offline fallback.
+- Updated the local CORS configuration to include `https://www.blrocky.com`, but applying it from the editor VM was blocked because the VM sync service account lacks `storage.buckets.update`.
+- Changed the public `CNAME` target to `blrocky.com` so GitHub Pages should stop canonicalizing the site to `www` and use the already-allowed apex origin.

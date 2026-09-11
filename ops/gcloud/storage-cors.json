@@ -1,0 +1,14 @@
+[
+  {
+    "origin": [
+      "https://blrocky.com",
+      "https://www.blrocky.com",
+      "https://mobile.blrocky.com",
+      "https://home.blrocky.com",
+      "http://127.0.0.1:8092"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Cache-Control", "ETag"],
+    "maxAgeSeconds": 3600
+  }
+]
