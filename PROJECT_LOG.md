@@ -1281,3 +1281,4 @@ This file records concrete project changes made during assisted work. Each entry
 - Cached JSON fetch promises so the preflighted data is reused by the venue, promo, generic event, and static-info renderers instead of refetching the same files repeatedly.
 - Deferred the main page's heavy visual sources until storage passes: marquee images, logo/shop/decorative images, switch art, coffin art, static direction icons, and join-cast laser media. The intro video and offline/social fallback icons still load immediately.
 - If storage fails, the page shows the server-offline/social fallback, stops media, and avoids hydrating the old placeholder event DOM.
+- Published the change to `blrocky/blrocky.com` at commit `668e3e8` and verified a fresh clone contains the new preflight/deferred-asset code.
