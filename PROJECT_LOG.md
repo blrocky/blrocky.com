@@ -1290,3 +1290,18 @@ This file records concrete project changes made during assisted work. Each entry
 - Found that bucket CORS allowed `https://blrocky.com` but not `https://www.blrocky.com`, causing the new storage preflight to fail from the `www` origin and show the offline fallback.
 - Updated the local CORS configuration to include `https://www.blrocky.com`, but applying it from the editor VM was blocked because the VM sync service account lacks `storage.buckets.update`.
 - Changed the public `CNAME` target to `blrocky.com` so GitHub Pages should stop canonicalizing the site to `www` and use the already-allowed apex origin.
+
+### VM Project Sync And Codex Install
+- Date: 2026-09-11 10:10:00 PDT
+- Files touched: `PROJECT_LOG.md`, `/srv/blrocky` on `blrocky-editor-1`, `/usr/local/bin/update-codex` on `blrocky-editor-1`, `/usr/local/bin/codex` on `blrocky-editor-1`, and the VM user crontab
+- Verified every readable local project file, excluding `.git`, `.tmp`, `node_modules`, and unreadable editor JSON backups, exists under `/srv/blrocky` on the VM. The only extra VM-readable files are expected runtime promo uploads/private promo originals.
+- Fixed the editor `Access denied.` error caused by the sync leaving `index.php` unreadable by PHP-FPM. Restored `/srv/blrocky` group ownership to `www-data`, directory setgid/group access, and kept `/srv/blrocky/EDITOR_PASSWORD` as `root:www-data` with `0640`.
+- Verified `http://136.67.149.129/` and `http://edit.blrocky.com/` now return the BL Rocky editor login page with HTTP 200.
+- Installed the local `update-codex` workflow on the VM, installed Codex CLI `0.154.0`, added a global `/usr/local/bin/codex` launcher, and scheduled a daily 4:17 AM cron update with `flock` logging to `/home/jaisonawsome/.codex/logs/update-codex.log`.
+
+### State Marquee Alpha And Pole Burst Scroll Fix
+- Date: 2026-09-11 11:50:00 PDT
+- Files touched: `index.html`, `assets/media/state_sign_alpha.webm`, `PROJECT_LOG.md`, and matching files under `/srv/blrocky`
+- Generated `state_sign_alpha.webm` on `blrocky-editor-1` with ffmpeg black-keying and VP9 alpha metadata so the State Theatre marquee can render without the black video background.
+- Updated the State Theatre video markup to prefer the alpha WebM and keep `state_sign.mp4` as the fallback source.
+- Changed the green sonic oscillator burst from viewport-fixed positioning to document-positioned coordinates so it stays down by the pole switch area after it fires instead of sticking to the screen while scrolling.

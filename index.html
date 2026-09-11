@@ -2017,7 +2017,7 @@
     .pole-label-left-bottom { left: -10%; bottom: -5%; }
 
     .sonic-oscillator-burst {
-      position: fixed;
+      position: absolute;
       z-index: 175;
       display: none;
       width: min(50vw, var(--burst-width, 50vw));
@@ -3594,7 +3594,10 @@
 
             <article id="state-show-card" class="show-card custom-venue-card">
               <div class="state-marquee-stage" aria-label="State Theatre event marquee">
-                <video data-src="./assets/media/state_sign.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <video muted loop playsinline preload="none" aria-hidden="true">
+                  <source data-src="./assets/media/state_sign_alpha.webm" type="video/webm">
+                  <source data-src="./assets/media/state_sign.mp4" type="video/mp4">
+                </video>
                 <div id="state-marquee-left-copy" class="state-panel-copy left" data-event-panel="left" aria-label="State Theatre left event text">
                   <h2 id="state-marquee-left-line-1" data-event-field="stateLeftLine1">Modesto!</h2>
                   <h2 id="state-marquee-left-line-2" data-event-field="stateLeftLine2">Saturday Oct</h2>
@@ -4240,8 +4243,8 @@
       const originX = rect.left + (rect.width * 0.5);
       const originY = rect.top + (rect.height * 0.5);
       const width = Math.min(window.innerWidth * 0.5, Math.max(120, originX - 12));
-      sonicOscillatorBurst.style.left = `${Math.max(8, originX - width)}px`;
-      sonicOscillatorBurst.style.top = `${Math.max(8, Math.min(window.innerHeight - 58, originY - 25))}px`;
+      sonicOscillatorBurst.style.left = `${Math.max(8, window.scrollX + originX - width)}px`;
+      sonicOscillatorBurst.style.top = `${Math.max(8, window.scrollY + originY - 25)}px`;
       sonicOscillatorBurst.style.setProperty("--burst-width", `${width}px`);
     };
 
