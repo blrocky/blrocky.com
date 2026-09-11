@@ -2829,6 +2829,89 @@
       filter: brightness(0) invert(1);
     }
 
+    .storage-fallback {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      min-height: 100dvh;
+      padding: clamp(28px, 6vw, 72px);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 42, 78, .24), transparent 34%),
+        #070609;
+      color: var(--ink);
+      overflow: auto;
+    }
+
+    body.storage-fallback-active {
+      overflow: hidden;
+    }
+
+    body.storage-fallback-active .intro-animation,
+    body.storage-fallback-active .page-content,
+    body.storage-fallback-active .sticky-footer,
+    body.storage-fallback-active .socials-menu,
+    body.storage-fallback-active .modal {
+      display: none !important;
+    }
+
+    body.storage-fallback-active .storage-fallback {
+      display: grid;
+      place-items: center;
+    }
+
+    .storage-fallback-card {
+      width: min(720px, 100%);
+      padding: clamp(24px, 5vw, 44px);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 8px;
+      background: rgba(12, 8, 13, .94);
+      box-shadow: 0 24px 80px rgba(0,0,0,.65);
+      text-align: center;
+    }
+
+    .storage-fallback-card h2 {
+      margin: 0 0 14px;
+      color: #ff2a4e;
+      font-family: var(--font-display);
+      font-size: clamp(2.1rem, 8vw, 4.8rem);
+      line-height: .95;
+    }
+
+    .storage-fallback-card p {
+      margin: 0 auto 22px;
+      max-width: 38rem;
+      color: rgba(255,255,255,.82);
+      font-size: clamp(1rem, 2.8vw, 1.2rem);
+    }
+
+    .storage-fallback-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .storage-fallback-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .storage-fallback-links img {
+      width: 1.15rem;
+      height: 1.15rem;
+      filter: brightness(0) invert(1);
+    }
+
     .animation-off *,
     .animation-off *::before,
     .animation-off *::after {
@@ -3424,6 +3507,19 @@
     </div>
   </div>
 
+  <section id="storage-fallback" class="storage-fallback" aria-labelledby="storage-fallback-title" aria-live="polite">
+    <div class="storage-fallback-card">
+      <h2 id="storage-fallback-title">Server Offline</h2>
+      <p>Sorry, looks like the show-info server is offline. Sorry about that. Please check our social media links for current show details.</p>
+      <nav class="storage-fallback-links" aria-label="Social links">
+        <a href="https://instagram.com/blrhps" target="_blank" rel="noopener noreferrer"><img src="./assets/icons/instagram.svg" alt="" aria-hidden="true">Instagram</a>
+        <a href="https://facebook.com/blrocky" target="_blank" rel="noopener noreferrer"><img src="./assets/icons/facebook.svg" alt="" aria-hidden="true">Facebook</a>
+        <a href="https://www.tiktok.com/@blrhps" target="_blank" rel="noopener noreferrer"><img src="./assets/icons/tiktok.svg" alt="" aria-hidden="true">TikTok</a>
+        <a href="https://linktr.ee/BLRHPS" target="_blank" rel="noopener noreferrer"><img src="./assets/icons/linktree.svg" alt="" aria-hidden="true">Linktree</a>
+      </nav>
+    </div>
+  </section>
+
   <div class="page-content">
   <header id="top" class="page-shell site-header">
     <div id="site-logo" class="logo-awaiting" aria-label="BL Rocky logo"></div>
@@ -3431,7 +3527,7 @@
       Let's Do The Time Warp Again
     </h1>
     <a id="shop-link" href="#" aria-label="Open the online merch shop" title="Open the online merch shop">
-      <img class="shop-logo" src="./assets/media/new_logo.png" alt="" aria-hidden="true">
+      <img class="shop-logo" data-defer-src="./assets/media/new_logo.png" alt="" aria-hidden="true">
       <span id="shop-link-text" class="shop-text">Shop</span>
     </a>
   </header>
@@ -3447,7 +3543,7 @@
                 <label class="show-filter-option"><input type="radio" name="show-filter" value="date" checked> Date</label>
                 <label class="show-filter-option"><input type="radio" name="show-filter" value="location"> Location</label>
               </div>
-              <img class="location-icon" src="./assets/icons/directions-transparent.png" alt="" aria-hidden="true">
+              <img class="location-icon" data-defer-src="./assets/icons/directions-transparent.png" alt="" aria-hidden="true">
             </div>
             <div id="location-filter-tools" class="location-filter-tools">
               <input id="zip-filter-input" class="zip-filter-input" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="ZIP">
@@ -3458,21 +3554,21 @@
         </div>
         <div class="shows-layout">
           <div id="scooby-left-decoration" class="side-decoration gargoyle-decoration">
-            <img src="./assets/media/gargoyle_1.png" alt="" aria-hidden="true">
+            <img data-defer-src="./assets/media/gargoyle_1.png" alt="" aria-hidden="true">
           </div>
 
           <div id="shows-list" class="show-list">
             <article id="featured-show-card" class="show-card featured custom-venue-card">
               <div class="uc-marquee-stage" aria-label="UC Theatre event marquee">
-                <img src="./assets/marquees/uc/uc_marquee.png" alt="UC Theatre marquee">
+                <img data-defer-src="./assets/marquees/uc/uc_marquee.png" alt="UC Theatre marquee">
                 <div class="color-wash" aria-hidden="true"></div>
-                <img class="color-overlay is-active" src="./assets/marquees/uc/uc_marquee_overlay_red.png" alt="" aria-hidden="true">
-                <img class="color-overlay" src="./assets/marquees/uc/uc_marquee_overlay_orange.png" alt="" aria-hidden="true">
-                <img class="color-overlay" src="./assets/marquees/uc/uc_marquee_overlay_yellow.png" alt="" aria-hidden="true">
-                <img class="color-overlay" src="./assets/marquees/uc/uc_marquee_overlay_green.png" alt="" aria-hidden="true">
-                <img class="color-overlay" src="./assets/marquees/uc/uc_marquee_overlay_cyan.png" alt="" aria-hidden="true">
-                <img class="color-overlay" src="./assets/marquees/uc/uc_marquee_overlay_blue.png" alt="" aria-hidden="true">
-                <img class="color-overlay" src="./assets/marquees/uc/uc_marquee_overlay_magenta.png" alt="" aria-hidden="true">
+                <img class="color-overlay is-active" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_red.png" alt="" aria-hidden="true">
+                <img class="color-overlay" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_orange.png" alt="" aria-hidden="true">
+                <img class="color-overlay" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_yellow.png" alt="" aria-hidden="true">
+                <img class="color-overlay" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_green.png" alt="" aria-hidden="true">
+                <img class="color-overlay" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_cyan.png" alt="" aria-hidden="true">
+                <img class="color-overlay" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_blue.png" alt="" aria-hidden="true">
+                <img class="color-overlay" data-defer-src="./assets/marquees/uc/uc_marquee_overlay_magenta.png" alt="" aria-hidden="true">
                 <div class="party-window" aria-hidden="true"></div>
                 <div id="uc-theatre-marquee-copy" class="marquee-copy" data-venue-id="uc-theatre" data-card-style="uc-marquee" aria-label="UC Theatre event listing">
                   <h2 id="uc-theatre-marquee-line-1" data-event-field="marqueeLine1"></h2>
@@ -3482,7 +3578,7 @@
                 </div>
                 <a id="uc-theatre-venue-link" class="venue-website-link" href="https://theuctheatre.org/" aria-label="Open UC Theatre website" title="Open UC Theatre website">
                   <span class="venue-link-navicon" aria-hidden="true">
-                    <img src="./assets/icons/nav.svg" alt="">
+                    <img data-defer-src="./assets/icons/nav.svg" alt="">
                   </span>
                 </a>
               </div>
@@ -3522,7 +3618,7 @@
             <article id="phoenix-show-card" class="show-card custom-venue-card">
               <div class="phoenix-theatre-stage" aria-label="Phoenix Theatre event listing">
                 <div class="phoenix-logo-wrap" aria-hidden="true">
-                  <img src="./assets/phoenix-logo-alpha.png" alt="">
+                  <img data-defer-src="./assets/phoenix-logo-alpha.png" alt="">
                 </div>
                 <div id="phoenix-theatre-copy" class="phoenix-copy" data-venue-id="phoenix-theatre" data-card-style="phoenix-theatre">
                   <h2 id="phoenix-theatre-line-1" data-event-field="phoenixLine1"></h2>
@@ -3555,7 +3651,7 @@
                   <h3 id="curran-theatre-line-4" data-event-field="curranLine4"></h3>
                 </div>
                 <a id="curran-special-guest-link" class="curran-special-guest" href="#curran-show-card" aria-label="Curran Theatre special guest">
-                  <img src="./assets/media/barry.png" alt="">
+                  <img data-defer-src="./assets/media/barry.png" alt="">
                 </a>
               </div>
               <p class="standard-show-meta"><strong>Date:</strong> <span id="curran-show-date">Text placeholder</span></p>
@@ -3592,7 +3688,7 @@
           </div>
 
           <div id="scooby-right-decoration" class="side-decoration gargoyle-decoration">
-            <img src="./assets/media/gargoyle_2.png" alt="" aria-hidden="true">
+            <img data-defer-src="./assets/media/gargoyle_2.png" alt="" aria-hidden="true">
           </div>
         </div>
       </div>
@@ -3608,7 +3704,7 @@
               <div class="details-body">
                 <p>UC Theatre: our Berkeley home for Rocky Horror.</p>
                 <p><a href="https://theuctheatre.org/">Visit the UC Theatre website</a>.</p>
-                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=2036%20University%20Ave%2C%20Berkeley%2C%20CA%2094704"><img class="inline-icon nav-icon" src="./assets/icons/nav.svg" alt="" aria-hidden="true">2036 University Ave, Berkeley, CA 94704</a></p>
+                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=2036%20University%20Ave%2C%20Berkeley%2C%20CA%2094704"><img class="inline-icon nav-icon" data-defer-src="./assets/icons/nav.svg" alt="" aria-hidden="true">2036 University Ave, Berkeley, CA 94704</a></p>
               </div>
             </details>
             <details id="venue-info-secondary" class="info-block venue-phoenix">
@@ -3616,7 +3712,7 @@
               <div class="details-body">
                 <p>The Phoenix is our home in the North Bay. It is a skatepark, it is a skate shop, it is a hangout spot, and it is a punk venue. We absolutely love bringing Rocky to that community.</p>
                 <p>We generally have a couple of shows there in October and one in spring, so do not miss us when we come to town.</p>
-                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=201%20Washington%20St%2C%20Petaluma%2C%20CA%2094952"><img class="inline-icon nav-icon" src="./assets/icons/nav.svg" alt="" aria-hidden="true">201 Washington St., Petaluma, CA 94952</a></p>
+                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=201%20Washington%20St%2C%20Petaluma%2C%20CA%2094952"><img class="inline-icon nav-icon" data-defer-src="./assets/icons/nav.svg" alt="" aria-hidden="true">201 Washington St., Petaluma, CA 94952</a></p>
               </div>
             </details>
             <details id="venue-info-state-theatre" class="info-block venue-state">
@@ -3624,15 +3720,15 @@
               <div class="details-body">
                 <p>The State has become our annual tradition of hopping in our cars and bringing the show to the Central Valley.</p>
                 <p>The State has been a great host to us and gladly invites us to throw toilet paper and get undressed in their gigantic theater.</p>
-                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=1307%20J%20Street%2C%20Modesto%2C%20CA%2095354"><img class="inline-icon nav-icon" src="./assets/icons/nav.svg" alt="" aria-hidden="true">1307 J Street, Modesto, CA 95354</a></p>
+                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=1307%20J%20Street%2C%20Modesto%2C%20CA%2095354"><img class="inline-icon nav-icon" data-defer-src="./assets/icons/nav.svg" alt="" aria-hidden="true">1307 J Street, Modesto, CA 95354</a></p>
               </div>
             </details>
           </div>
           <div id="coffin-clock-decoration" class="coffin-clock-decoration">
             <button id="coffin-clock" class="coffin-clock" type="button" data-frame="closed" aria-label="Open coffin clock decoration">
-              <img class="coffin-frame-closed" src="./assets/coffin-clock-closed.webp" alt="" aria-hidden="true">
-              <img class="coffin-frame-halfway" src="./assets/coffin-clock-halfway.webp" alt="" aria-hidden="true">
-              <img class="coffin-frame-open" src="./assets/coffin-clock-open.webp" alt="" aria-hidden="true">
+              <img class="coffin-frame-closed" data-defer-src="./assets/coffin-clock-closed.webp" alt="" aria-hidden="true">
+              <img class="coffin-frame-halfway" data-defer-src="./assets/coffin-clock-halfway.webp" alt="" aria-hidden="true">
+              <img class="coffin-frame-open" data-defer-src="./assets/coffin-clock-open.webp" alt="" aria-hidden="true">
             </button>
           </div>
         </div>
@@ -3647,8 +3743,8 @@
             <span class="join-action-wrap">
               <a id="join-cast-email-link" class="button" href="mailto:barelylegalrocky@gmail.com?subject=Join%20cast">Email about joining</a>
               <video id="join-cast-laser" class="join-laser" muted playsinline preload="metadata" aria-hidden="true">
-                <source src="./assets/lazer-alpha.webm" type="video/webm">
-                <source src="./assets/media/lazer.mp4" type="video/mp4">
+                <source data-src="./assets/lazer-alpha.webm" type="video/webm">
+                <source data-src="./assets/media/lazer.mp4" type="video/mp4">
               </video>
             </span>
             <div class="join-panel-copy">
@@ -3683,7 +3779,7 @@
           <details id="cast-history-info" class="info-block info-yellow">
               <summary>History of Cast</summary>
               <div class="details-body">
-              <p>BL was formed in Berkeley in 1995 after the legendary weekly shadow cast <span class="history-callout" tabindex="0">Indecent Exposure<img src="./assets/indecent-exposure-logo.gif" alt="Indecent Exposure logo"></span> called it quits. BL was created to fill that major hole in the Berkeley community and continue Rocky Horror at the UC.</p>
+              <p>BL was formed in Berkeley in 1995 after the legendary weekly shadow cast <span class="history-callout" tabindex="0">Indecent Exposure<img data-defer-src="./assets/indecent-exposure-logo.gif" alt="Indecent Exposure logo"></span> called it quits. BL was created to fill that major hole in the Berkeley community and continue Rocky Horror at the UC.</p>
               <p>Unfortunately, the original UC Theatre closed in 2001, but BL continued to perform in the meantime, calling the New Parkway (Oakland), Camera 3/3Below (San Jose), and the Albany Twin our homes for many years. They have all since closed. Make of that what you will.</p>
               <p>We have seasonally called the Phoenix Theatre in Petaluma our home away from home after resident cast Absolute Pleasure dissolved.<br>Over the years we have taken our show all over the Bay Area and greater Northern California.</p>
               <p>But our home and heart were always in Berkeley, and in 2016, when the UC Theatre reopened as a live entertainment venue, we were delighted to bring the show back home. You can catch us there for what have become annual traditions around <span class="seasonal-note valentine">Valentine's Day</span> and <span class="seasonal-note halloween">Halloween</span>.</p>
@@ -3730,7 +3826,7 @@
     <section id="animation-controls" aria-label="Animation and display controls">
       <div class="page-shell footer-actions">
         <button id="toggle-animation-button" class="knife-switch-control" type="button" aria-pressed="false" aria-label="Toggle site animations" title="Toggle site animations">
-          <img id="knife-switch-image" src="./assets/switches/knife-switch/medusa-0.png" alt="" aria-hidden="true">
+          <img id="knife-switch-image" data-defer-src="./assets/switches/knife-switch/medusa-0.png" alt="" aria-hidden="true">
           <span id="knife-switch-label">Turn off animation</span>
         </button>
         <div class="display-mode-control legacy-display-mode-control" role="group" aria-label="Display mode">
@@ -3739,7 +3835,7 @@
           <button class="display-mode-button" type="button" data-display-mode="desktop" aria-pressed="false">Desktop</button>
         </div>
         <div id="display-pole-control" class="display-pole-control" role="group" aria-label="Display mode switch">
-          <img id="display-pole-image" src="./assets/switches/pole-switches/both-up.png" alt="" aria-hidden="true">
+          <img id="display-pole-image" data-defer-src="./assets/switches/pole-switches/both-up.png" alt="" aria-hidden="true">
           <button class="display-pole-image-button" type="button" aria-label="Display mode switch image"></button>
           <button class="pole-label pole-label-left-top" type="button" data-display-pole="auto" aria-label="Toggle automatic or manual display mode">Auto</button>
           <button class="pole-label pole-label-left-bottom" type="button" data-display-pole="auto" aria-label="Toggle automatic or manual display mode">Manual</button>
@@ -3824,6 +3920,56 @@
       const base = String(publicConfig.dataBaseUrl || "").replace(/\/+$/, "");
       const url = base ? `${base}/${fileName}` : `./stuffworked-on-a-bit/rhps/data/${fileName}`;
       return withDataCacheKey(url);
+    };
+    const requiredDataFiles = ["site.json", "events.json", "venues.json", "promos.json"];
+    const dataJsonCache = new Map();
+    let storagePreflightPromise = null;
+    const storageFallbackSocials = {
+      facebook: "https://facebook.com/blrocky",
+      instagram: "https://instagram.com/blrhps",
+      tiktok: "https://www.tiktok.com/@blrhps",
+      linktree: "https://linktr.ee/BLRHPS"
+    };
+    let storageFallbackShown = false;
+    const showStorageFallback = (error) => {
+      if (storageFallbackShown) return;
+      storageFallbackShown = true;
+      console.warn("Public show data could not be loaded; showing storage fallback.", error);
+      body.classList.add("storage-fallback-active", "animations-off", "animation-off");
+      document.querySelectorAll("video, audio").forEach((media) => {
+        media.pause();
+        media.removeAttribute("src");
+        media.querySelectorAll("source").forEach((source) => source.removeAttribute("src"));
+        try { media.load(); } catch (loadError) {}
+      });
+      Object.entries(storageFallbackSocials).forEach(([key, href]) => {
+        const anchor = document.querySelector(`#storage-fallback a[href*="${key === "linktree" ? "linktr.ee" : key}"]`);
+        if (anchor && href) anchor.href = href;
+      });
+    };
+    const fetchDataJson = async (fileName) => {
+      if (dataJsonCache.has(fileName)) return dataJsonCache.get(fileName);
+      const request = fetch(dataUrl(fileName), { cache: "no-store" }).then((response) => {
+        if (!response.ok) throw new Error(`Could not load ${fileName}: HTTP ${response.status}`);
+        return response.json();
+      });
+      dataJsonCache.set(fileName, request);
+      return request;
+    };
+    const preflightStorageData = async () => {
+      if (!storagePreflightPromise) {
+        storagePreflightPromise = Promise.all(requiredDataFiles.map(fetchDataJson)).catch((error) => {
+          showStorageFallback(error);
+          throw error;
+        });
+      }
+      return storagePreflightPromise;
+    };
+    const activateDeferredAssets = () => {
+      document.querySelectorAll("[data-defer-src]").forEach((element) => {
+        if (element.getAttribute("src")) return;
+        element.setAttribute("src", element.dataset.deferSrc);
+      });
     };
     const assetUrl = (value) => {
       const raw = String(value || "");
@@ -5195,6 +5341,7 @@
       const laser = document.querySelector("#join-cast-laser");
       const link = document.querySelector("#join-cast-email-link");
       if (!laser || !link) return;
+      ensureVideoSources(laser);
       const resetLaser = () => {
         laser.pause();
         try { laser.currentTime = 0; } catch (error) {}
@@ -5338,8 +5485,7 @@
 
     const initStaticInfoStyles = async () => {
       try {
-        const response = await fetch(dataUrl("site.json"), { cache: "no-store" });
-        const site = response.ok ? await response.json() : {};
+        const site = await fetchDataJson("site.json");
         applySiteSettings(site);
         loadConfiguredFonts(Array.isArray(site.fonts) ? site.fonts : []);
         const styles = site.staticInfoStyles || {};
@@ -5381,6 +5527,7 @@
         });
       } catch (error) {
         console.warn("Could not load static info settings. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
         staticInfoBoxIds.forEach((id) => {
           const box = document.getElementById(id);
           if (box) convertHiddenTags(box);
@@ -5623,16 +5770,13 @@
       };
 
       try {
-        const [eventsResponse, venuesResponse, siteResponse] = await Promise.all([
-          fetch(eventsDataUrl, { cache: "no-store" }),
-          fetch(venuesDataUrl, { cache: "no-store" }),
-          fetch(siteDataUrl, { cache: "no-store" })
+        const [events, venues, site] = await Promise.all([
+          fetchDataJson("events.json"),
+          fetchDataJson("venues.json"),
+          fetchDataJson("site.json")
         ]);
-        const events = eventsResponse.ok ? await eventsResponse.json() : [];
-        const venues = venuesResponse.ok ? await venuesResponse.json() : [];
         allEventData = Array.isArray(events) ? events : [];
         allVenueData = Array.isArray(venues) ? venues : [];
-        const site = siteResponse.ok ? await siteResponse.json() : {};
         loadSiteFonts(site);
         const event = Array.isArray(events)
           ? events.find((item) => item.cardStyle === copyBlock.dataset.cardStyle && item.venueId === copyBlock.dataset.venueId && publicEventIsActive(item))
@@ -5641,6 +5785,7 @@
         applyEvent(event, venues);
       } catch (error) {
         console.warn("Could not load UC Theatre event JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       } finally {
         wrapCharacters();
         fitLines();
@@ -5773,16 +5918,13 @@
       };
 
       try {
-        const [eventsResponse, venuesResponse, siteResponse] = await Promise.all([
-          fetch(eventsDataUrl, { cache: "no-store" }),
-          fetch(venuesDataUrl, { cache: "no-store" }),
-          fetch(siteDataUrl, { cache: "no-store" })
+        const [events, venues, site] = await Promise.all([
+          fetchDataJson("events.json"),
+          fetchDataJson("venues.json"),
+          fetchDataJson("site.json")
         ]);
-        const events = eventsResponse.ok ? await eventsResponse.json() : [];
-        const venues = venuesResponse.ok ? await venuesResponse.json() : [];
         allEventData = Array.isArray(events) ? events : [];
         allVenueData = Array.isArray(venues) ? venues : [];
-        const site = siteResponse.ok ? await siteResponse.json() : {};
         loadSiteFonts(site);
         const hasStateCopy = (item) => ["stateLeftLine1", "stateLeftLine2", "stateLeftSubline", "stateRightLine1", "stateRightLine2", "stateRightSubline"]
           .some((field) => String(item?.[field] || "").trim());
@@ -5822,6 +5964,7 @@
         }
       } catch (error) {
         console.warn("Could not load State Theatre event JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       } finally {
         fitPanelLines();
         window.addEventListener("resize", fitPanelLines);
@@ -5951,16 +6094,13 @@
       };
 
       try {
-        const [eventsResponse, venuesResponse, siteResponse] = await Promise.all([
-          fetch(eventsDataUrl, { cache: "no-store" }),
-          fetch(venuesDataUrl, { cache: "no-store" }),
-          fetch(siteDataUrl, { cache: "no-store" })
+        const [events, venues, site] = await Promise.all([
+          fetchDataJson("events.json"),
+          fetchDataJson("venues.json"),
+          fetchDataJson("site.json")
         ]);
-        const events = eventsResponse.ok ? await eventsResponse.json() : [];
-        const venues = venuesResponse.ok ? await venuesResponse.json() : [];
         allEventData = Array.isArray(events) ? events : [];
         allVenueData = Array.isArray(venues) ? venues : [];
-        const site = siteResponse.ok ? await siteResponse.json() : {};
         loadSiteFonts(site);
         const event = Array.isArray(events)
           ? events.find((item) => item.cardStyle === copyBlock.dataset.cardStyle && item.venueId === copyBlock.dataset.venueId && publicEventIsActive(item))
@@ -5992,6 +6132,7 @@
         }
       } catch (error) {
         console.warn("Could not load Phoenix Theatre event JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       } finally {
         fitLines();
         window.addEventListener("resize", fitLines);
@@ -6093,12 +6234,10 @@
         });
       };
       try {
-        const [eventsResponse, venuesResponse] = await Promise.all([
-          fetch(dataUrl("events.json"), { cache: "no-store" }),
-          fetch(dataUrl("venues.json"), { cache: "no-store" })
+        const [events, venues] = await Promise.all([
+          fetchDataJson("events.json"),
+          fetchDataJson("venues.json")
         ]);
-        const events = eventsResponse.ok ? await eventsResponse.json() : [];
-        const venues = venuesResponse.ok ? await venuesResponse.json() : [];
         allEventData = Array.isArray(events) ? events : [];
         allVenueData = Array.isArray(venues) ? venues : [];
         const event = Array.isArray(events)
@@ -6133,6 +6272,7 @@
         }
       } catch (error) {
         console.warn("Could not load Curran Theatre event JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       } finally {
         fitLines();
         window.addEventListener("resize", fitLines);
@@ -6253,12 +6393,10 @@
         });
       };
       try {
-        const [eventsResponse, venuesResponse] = await Promise.all([
-          fetch(dataUrl("events.json"), { cache: "no-store" }),
-          fetch(dataUrl("venues.json"), { cache: "no-store" })
+        const [events, venues] = await Promise.all([
+          fetchDataJson("events.json"),
+          fetchDataJson("venues.json")
         ]);
-        const events = eventsResponse.ok ? await eventsResponse.json() : [];
-        const venues = venuesResponse.ok ? await venuesResponse.json() : [];
         allEventData = Array.isArray(events) ? events : [];
         allVenueData = Array.isArray(venues) ? venues : [];
         const event = Array.isArray(events)
@@ -6290,6 +6428,7 @@
         }
       } catch (error) {
         console.warn("Could not load Delta Theatre event JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       } finally {
         fitLines();
         window.addEventListener("resize", fitLines);
@@ -6478,8 +6617,7 @@
       };
 
       try {
-        const response = await fetch(dataUrl("events.json"), { cache: "no-store" });
-        const events = response.ok ? await response.json() : [];
+        const events = await fetchDataJson("events.json");
         allEventData = Array.isArray(events) ? events : [];
         const genericEvents = Array.isArray(events)
           ? events.filter((event) => !event.venueId && publicEventIsActive(event))
@@ -6491,6 +6629,7 @@
         document.fonts?.ready.then(fitLines);
       } catch (error) {
         console.warn("Could not load generic event JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       }
     };
 
@@ -6635,8 +6774,7 @@
       const list = document.querySelector("#promo-list");
       if (!list) return;
       try {
-        const response = await fetch(dataUrl("promos.json"), { cache: "no-store" });
-        const promos = response.ok ? await response.json() : [];
+        const promos = await fetchDataJson("promos.json");
         const activePromos = Array.isArray(promos) ? promos.filter(promoIsActive) : [];
         if (!activePromos.length) return;
         activePromoIndex = 0;
@@ -6646,6 +6784,7 @@
         list.querySelector(".promo-carousel-control.next")?.addEventListener("click", () => showPromoSlide(list, activePromoIndex + 1));
       } catch (error) {
         console.warn("Could not load promo JSON. Use a local server instead of file:// for static previews.", error);
+        showStorageFallback(error);
       }
     };
 
@@ -6664,20 +6803,33 @@
       ruleGif.classList.add("is-playing");
     });
 
-    initUcTheatreMarquee();
-    initStateTheatreMarquee();
-    initPhoenixTheatre();
-    initCurranTheatre();
-    initDeltaTheatre();
-    initGenericEvents();
-    initPromos();
-    initCurranSparkles();
-    initStaticInfoStyles();
-    initTimeWarpText();
-    initJoinCastLaser();
-    initShowFilter();
-    initDisplayModeControl();
-    setupViewportAnimationGating();
+    const hydratePublicPage = async () => {
+      try {
+        await preflightStorageData();
+      } catch (error) {
+        return;
+      }
+      body.classList.add("storage-ready");
+      activateDeferredAssets();
+      await Promise.all([
+        initUcTheatreMarquee(),
+        initStateTheatreMarquee(),
+        initPhoenixTheatre(),
+        initCurranTheatre(),
+        initDeltaTheatre(),
+        initGenericEvents(),
+        initPromos(),
+        initStaticInfoStyles()
+      ]);
+      initCurranSparkles();
+      initTimeWarpText();
+      initJoinCastLaser();
+      initShowFilter();
+      initDisplayModeControl();
+      setupViewportAnimationGating();
+    };
+
+    hydratePublicPage();
     startIntro();
   </script>
 </body>
