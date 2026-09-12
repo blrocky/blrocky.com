@@ -2896,6 +2896,14 @@
       font-size: clamp(1rem, 2.8vw, 1.2rem);
     }
 
+    .storage-fallback-retry {
+      min-height: 1.4em;
+      margin-top: 18px !important;
+      margin-bottom: 0 !important;
+      color: rgba(255,255,255,.66) !important;
+      font-size: clamp(.88rem, 2.4vw, 1rem) !important;
+    }
+
     .storage-fallback-links {
       display: flex;
       flex-wrap: wrap;
@@ -3556,6 +3564,7 @@
         <a href="https://www.tiktok.com/@blrhps" target="_blank" rel="noopener noreferrer"><img src="./assets/icons/tiktok.svg" alt="" aria-hidden="true">TikTok</a>
         <a href="https://linktr.ee/BLRHPS" target="_blank" rel="noopener noreferrer"><img src="./assets/icons/linktree.svg" alt="" aria-hidden="true">Linktree</a>
       </nav>
+      <p id="storage-fallback-retry" class="storage-fallback-retry" aria-live="polite"></p>
     </div>
   </section>
 
@@ -3957,7 +3966,8 @@
     const body = document.body;
     const publicConfig = window.BLROCKY_CONFIG || {};
     const dataCacheKey = String(publicConfig.dataVersion || Date.now().toString(36));
-    const withDataCacheKey = (url) => `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(dataCacheKey)}`;
+    let dataRequestVersion = 0;
+    const withDataCacheKey = (url) => `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(`${dataCacheKey}-${dataRequestVersion}`)}`;
     const dataUrl = (fileName) => {
       const base = String(publicConfig.dataBaseUrl || "").replace(/\/+$/, "");
       const url = base ? `${base}/${fileName}` : `./stuffworked-on-a-bit/rhps/data/${fileName}`;
@@ -3969,6 +3979,11 @@
     const requiredDataFiles = ["site.json", "events.json", "venues.json", "promos.json"];
     const dataJsonCache = new Map();
     let storagePreflightPromise = null;
+    const storageRetryDelayMs = 5000;
+    const storageRetryLimit = 5;
+    let storageRetryCount = 0;
+    let storageRetryTimer = null;
+    let storageRetryInFlight = false;
     const storageFallbackSocials = {
       facebook: "https://facebook.com/blrocky",
       instagram: "https://instagram.com/blrhps",
@@ -3976,21 +3991,57 @@
       linktree: "https://linktr.ee/BLRHPS"
     };
     let storageFallbackShown = false;
+    const setStorageFallbackRetryStatus = (message) => {
+      const status = document.querySelector("#storage-fallback-retry");
+      if (status) status.textContent = message || "";
+    };
+    const clearStorageDataCache = () => {
+      requiredDataFiles.forEach((fileName) => dataJsonCache.delete(fileName));
+      storagePreflightPromise = null;
+      dataRequestVersion += 1;
+    };
+    const scheduleStorageFallbackRetry = () => {
+      if (storageRetryInFlight || storageRetryTimer) return;
+      if (storageRetryCount >= storageRetryLimit) {
+        setStorageFallbackRetryStatus("Still offline after 5 retries. Please use the social links for current show details.");
+        return;
+      }
+      const nextRetry = storageRetryCount + 1;
+      setStorageFallbackRetryStatus(`Trying the show-info server again in 5 seconds. Retry ${nextRetry} of ${storageRetryLimit}.`);
+      storageRetryTimer = window.setTimeout(async () => {
+        storageRetryTimer = null;
+        storageRetryInFlight = true;
+        storageRetryCount += 1;
+        setStorageFallbackRetryStatus(`Checking the show-info server now. Retry ${storageRetryCount} of ${storageRetryLimit}.`);
+        clearStorageDataCache();
+        try {
+          await Promise.all(requiredDataFiles.map(fetchDataJson));
+          setStorageFallbackRetryStatus("Show-info server is back. Reloading the page.");
+          window.setTimeout(() => window.location.reload(), 350);
+        } catch (retryError) {
+          console.warn("Public show data retry failed.", retryError);
+          storageRetryInFlight = false;
+          scheduleStorageFallbackRetry();
+        }
+      }, storageRetryDelayMs);
+    };
     const showStorageFallback = (error) => {
-      if (storageFallbackShown) return;
-      storageFallbackShown = true;
-      console.warn("Public show data could not be loaded; showing storage fallback.", error);
-      body.classList.add("storage-fallback-active", "animations-off", "animation-off");
-      document.querySelectorAll("video, audio").forEach((media) => {
-        media.pause();
-        media.removeAttribute("src");
-        media.querySelectorAll("source").forEach((source) => source.removeAttribute("src"));
-        try { media.load(); } catch (loadError) {}
-      });
-      Object.entries(storageFallbackSocials).forEach(([key, href]) => {
-        const anchor = document.querySelector(`#storage-fallback a[href*="${key === "linktree" ? "linktr.ee" : key}"]`);
-        if (anchor && href) anchor.href = href;
-      });
+      if (!storageFallbackShown) {
+        storageFallbackShown = true;
+        console.warn("Public show data could not be loaded; showing storage fallback.", error);
+        body.classList.add("storage-fallback-active", "animations-off", "animation-off");
+        document.querySelectorAll("video, audio").forEach((media) => {
+          media.pause();
+          media.removeAttribute("src");
+          media.querySelectorAll("source").forEach((source) => source.removeAttribute("src"));
+          try { media.load(); } catch (loadError) {}
+        });
+        Object.entries(storageFallbackSocials).forEach(([key, href]) => {
+          const anchor = document.querySelector(`#storage-fallback a[href*="${key === "linktree" ? "linktr.ee" : key}"]`);
+          if (anchor && href) anchor.href = href;
+        });
+      }
+      scheduleStorageFallbackRetry();
     };
     const fetchDataJson = async (fileName) => {
       if (Object.prototype.hasOwnProperty.call(previewData, fileName)) {
