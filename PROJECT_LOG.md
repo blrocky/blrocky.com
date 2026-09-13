@@ -1477,3 +1477,9 @@ This file records concrete project changes made during assisted work. Each entry
 - Date logged: 2026-09-12
 - Confirmed all four public JSON files and their browser CORS headers were healthy while the homepage could still show the offline overlay.
 - Changed the fallback guard so only a failed required-data preflight can activate the server-offline screen; a later component rendering error is logged without hiding already-loaded content.
+
+### In-Place Storage Recovery
+- Date logged: 2026-09-13
+- Added a five-second grace period before the offline panel appears and a ten-second timeout for each required JSON request.
+- Removed the full-page reload from successful retries; the page now clears the fallback state and refreshes its data-backed sections and deferred media in place.
+- A transient storage delay can no longer immediately replace the page or create a reload loop.
