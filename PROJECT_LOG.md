@@ -1472,3 +1472,8 @@ This file records concrete project changes made during assisted work. Each entry
 - Fixed the homepage date and location sort so no-venue event cards participate in the same ordering as regular venue cards.
 - The generic event container now exposes its cards as homepage grid items, and the sort routines assign a shared visual order across all upcoming events.
 - The corrected homepage template is being deployed so the published page uses the same behavior as editor samples.
+
+### Prevent False Storage Offline Screen
+- Date logged: 2026-09-12
+- Confirmed all four public JSON files and their browser CORS headers were healthy while the homepage could still show the offline overlay.
+- Changed the fallback guard so only a failed required-data preflight can activate the server-offline screen; a later component rendering error is logged without hiding already-loaded content.

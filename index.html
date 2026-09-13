@@ -3988,6 +3988,7 @@
     let storageRetryCount = 0;
     let storageRetryTimer = null;
     let storageRetryInFlight = false;
+    let storageDataReady = false;
     const storageFallbackSocials = {
       facebook: "https://facebook.com/blrocky",
       instagram: "https://instagram.com/blrhps",
@@ -4032,6 +4033,10 @@
     const showStorageFallback = (error) => {
       if (isEmbeddedPreview) {
         console.warn("Embedded preview data could not be rendered.", error);
+        return;
+      }
+      if (storageDataReady) {
+        console.warn("Public data loaded, but one page component could not be rendered.", error);
         return;
       }
       if (!storageFallbackShown) {
@@ -7016,6 +7021,7 @@
       } catch (error) {
         return;
       }
+      storageDataReady = true;
       body.classList.add("storage-ready");
       activateDeferredAssets();
       await Promise.all([
