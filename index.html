@@ -7,7 +7,7 @@
   <meta property="og:title" content="BL Rocky">
   <meta property="og:description" content="Barely Legal Rocky Horror shadow cast shows, venues, cast information, and event links.">
   <title>BL Rocky</title>
-  <link rel="stylesheet" href="./fonts/site-fonts.css">
+  <link rel="stylesheet" href="./fonts/site-fonts.css?v=20260912-stardos">
   <script src="./public-data-config.js"></script>
   <style>
     :root {
@@ -357,6 +357,8 @@
 
     .inline-icon {
       margin-right: .22em;
+      aspect-ratio: 1 / 1;
+      flex: 0 0 auto;
     }
 
     .ticket-icon {
@@ -385,8 +387,10 @@
 
     img.nav-icon {
       color: transparent;
-      padding-left: 1.05em;
+      padding: 0;
       overflow: hidden;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
     }
 
     section {
@@ -608,8 +612,7 @@
     }
 
     .generic-event-list {
-      display: grid;
-      gap: 14px;
+      display: contents;
     }
 
     .generic-event-card {
@@ -3976,6 +3979,7 @@
     const previewData = window.BLROCKY_PREVIEW_DATA && typeof window.BLROCKY_PREVIEW_DATA === "object"
       ? window.BLROCKY_PREVIEW_DATA
       : {};
+    const isEmbeddedPreview = Object.keys(previewData).length > 0;
     const requiredDataFiles = ["site.json", "events.json", "venues.json", "promos.json"];
     const dataJsonCache = new Map();
     let storagePreflightPromise = null;
@@ -4026,6 +4030,10 @@
       }, storageRetryDelayMs);
     };
     const showStorageFallback = (error) => {
+      if (isEmbeddedPreview) {
+        console.warn("Embedded preview data could not be rendered.", error);
+        return;
+      }
       if (!storageFallbackShown) {
         storageFallbackShown = true;
         console.warn("Public show data could not be loaded; showing storage fallback.", error);
@@ -4070,14 +4078,32 @@
         element.setAttribute("src", element.dataset.deferSrc);
       });
     };
+    const previewUploadBaseUrl = String(publicConfig.previewUploadBaseUrl || "").replace(/\/+$/, "");
+    const uploadPathFromUrl = (value) => {
+      const raw = String(value || "").trim();
+      const match = raw.match(/(?:^|\/)(assets\/uploads\/[^?#]+(?:[?#].*)?)$/);
+      return match ? match[1] : "";
+    };
     const assetUrl = (value) => {
       const raw = String(value || "");
+      const previewUploadPath = previewUploadBaseUrl ? uploadPathFromUrl(raw) : "";
+      if (previewUploadPath) return `${previewUploadBaseUrl}/${previewUploadPath}`;
       if (!raw || /^(?:[a-z]+:|\/|#|data:|blob:)/i.test(raw)) return raw;
       const base = String(publicConfig.assetBaseUrl || "").replace(/\/+$/, "");
       const publicPath = raw
         .replace(/^\.\/stuffworked-on-a-bit\/rhps\/editor\/public\//, "")
         .replace(/^\.\//, "");
       return base ? `${base}/${publicPath}` : raw;
+    };
+    const configuredFontSourceUrl = (value) => {
+      const raw = String(value || "");
+      if (!raw) return "";
+      if (/^(?:https?:|\/|data:|blob:)/i.test(raw)) return raw;
+      if (raw.startsWith("assets/fonts/")) {
+        const base = String(publicConfig.assetBaseUrl || "").replace(/\/+$/, "");
+        return base ? `${base}/${raw}` : `./stuffworked-on-a-bit/rhps/editor/public/${raw}`;
+      }
+      return raw;
     };
     const intro = document.querySelector("#intro-animation");
     const introFrame = document.querySelector("#intro-frame");
@@ -5018,6 +5044,44 @@
       const match = String(tag || "").match(/-(\d+|next)$/);
       return match ? match[1] : fallback;
     };
+    const stripMarkupText = (value) => String(value || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    const eventDirectionsHint = (event) => {
+      for (const field of ["generalLine1", "generalLine2", "generalLine3", "generalLine4"]) {
+        const match = String(event?.[field] || "").match(/<directions-link[^>]*>([\s\S]*?)<\/directions-link>/i);
+        const hint = match ? stripMarkupText(match[1]) : "";
+        if (hint) return hint;
+      }
+      return "";
+    };
+    const eventLocationInfo = (event, venue, fallbackText = "") => {
+      const fallback = stripMarkupText(fallbackText) || eventDirectionsHint(event);
+      const name = event?.locationName || event?.customVenueName || venue?.name || fallback || "";
+      const splitAddress = [event?.locationStreet, event?.locationCity, event?.locationZip].filter(Boolean).join(", ");
+      const address = splitAddress || event?.locationAddress || event?.customVenueAddress || venue?.address || "";
+      const query = event?.locationMapsQuery || event?.customVenueMapsQuery || event?.mapsQuery || venue?.mapsQuery || address || name || fallback || "";
+      const website = event?.locationWebsite || event?.customVenueWebsite || venue?.website || "";
+      return { name, address, query, website };
+    };
+    const directionsHrefFor = (event, venue, fallbackText = "") => {
+      const location = eventLocationInfo(event, venue, fallbackText);
+      return location.query ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(location.query)}` : "#";
+    };
+    const theaterHrefFor = (event, venue) => eventLocationInfo(event, venue).website || "#";
+    const expandStandaloneActionTags = (source, event, venue) => {
+      const pattern = /<(ticket-link(?:-\d+)?|directions-link|theater-link|(?:calendar-link|calandar-link|calndar-link)(?:-\d+|-next)?)(?:\((\d+|next)\))?>/gi;
+      return String(source || "").replace(pattern, (full, tag, indexToken, offset, whole) => {
+        const rest = whole.slice(offset + full.length);
+        const closing = new RegExp(`^[\\s\\S]*?<\\/${tag}>`, "i");
+        if (closing.test(rest)) return full;
+        const token = indexToken ? `(${indexToken})` : "";
+        let label = "";
+        if (/^ticket-link/i.test(tag)) label = "Tickets";
+        else if (/^directions-link$/i.test(tag)) label = "Directions";
+        else if (/^theater-link$/i.test(tag)) label = "Theater website";
+        else label = "Add to calendar";
+        return `<${tag}${token}>${label}</${tag}>`;
+      });
+    };
     const formatTagPattern = /<(font-size(?::hover)?|color(?::hover)?|italic(?::hover)?|italize(?::hover)?|bold(?::hover)?)(?:\s+value=(?:"([^"]*)"|'([^']*)'))?>([\s\S]*?)<\/\1>/i;
     const ticketIconNode = () => {
       const icon = document.createElement("span");
@@ -5222,11 +5286,13 @@
     const calendarGoogleHref = (event, venue, indexToken = "", inner = "") => {
       const occurrence = occurrenceForCalendarTag(event, venue, indexToken, inner);
       if (!occurrence) return "#";
+      const location = eventLocationInfo(occurrence.event || event, venue);
+      const locationText = location.address || location.name || location.query || "";
       const details = new URLSearchParams({
         action: "TEMPLATE",
         text: occurrence.event?.title || event?.title || "BL Rocky event",
         dates: `${formatIcsUtc(occurrence.start)}/${formatIcsUtc(occurrence.end)}`,
-        location: venue?.address || venue?.name || ""
+        location: locationText
       });
       return `https://calendar.google.com/calendar/render?${details.toString()}`;
     };
@@ -5234,6 +5300,8 @@
       const occurrence = occurrenceForCalendarTag(event, venue, indexToken, inner);
       if (!occurrence) return "#";
       const title = occurrence.event?.title || event?.title || "BL Rocky event";
+      const location = eventLocationInfo(occurrence.event || event, venue);
+      const locationText = location.address || location.name || location.query || "";
       const uid = `${eventDownloadSlug(title)}-${formatIcsUtc(occurrence.start)}@blrocky.local`;
       const ics = [
         "BEGIN:VCALENDAR",
@@ -5247,7 +5315,7 @@
         `DTSTART:${formatIcsUtc(occurrence.start)}`,
         `DTEND:${formatIcsUtc(occurrence.end)}`,
         `SUMMARY:${escapeIcsText(title)}`,
-        `LOCATION:${escapeIcsText(venue?.address || venue?.name || "")}`,
+        `LOCATION:${escapeIcsText(locationText)}`,
         `DESCRIPTION:${escapeIcsText(occurrence.event?.notes || event?.notes || "")}`,
         "END:VEVENT",
         "END:VCALENDAR"
@@ -5266,9 +5334,7 @@
     const loadConfiguredFonts = (fonts = []) => {
       fonts.forEach((font) => {
         const rawSource = String(font?.source || "");
-        const source = rawSource.startsWith("assets/fonts/")
-          ? `./stuffworked-on-a-bit/rhps/editor/public/${rawSource}`
-          : rawSource;
+        const source = configuredFontSourceUrl(rawSource);
         const family = String(font?.family || font?.name || "");
         if (!source || !family) return;
         const sourcePath = source.toLowerCase().split("?")[0];
@@ -5474,16 +5540,24 @@
       const card = document.querySelector(selector);
       if (!card) return;
       card.dataset.eventDate = event?.dateTime || "";
+      const dateMeta = card.querySelector("[id$='show-date']")?.closest(".standard-show-meta");
+      if (dateMeta) dateMeta.hidden = event?.showDateText === false;
       if (dateSortIsActive()) sortShowCardsByDate();
+    };
+
+    const showCardNodes = (list) => Array.from(list.children).flatMap((node) => {
+      if (node.matches?.(".generic-event-list")) return Array.from(node.children);
+      return [node];
+    }).filter((node) => node.matches?.(".show-card, .generic-event-card"));
+    const applyShowCardOrder = (nodes) => {
+      nodes.forEach((node, index) => node.style.setProperty("order", String(index)));
     };
 
     const sortShowCardsByDate = () => {
       const list = document.querySelector("#shows-list");
       if (!list) return;
-      Array.from(list.children)
-        .filter((node) => node.matches?.(".show-card, .generic-event-list"))
-        .sort((a, b) => parseCardDate(a) - parseCardDate(b))
-        .forEach((node) => list.append(node));
+      const cards = showCardNodes(list).sort((a, b) => parseCardDate(a) - parseCardDate(b));
+      applyShowCardOrder(cards);
     };
 
     const milesBetween = (a, b) => {
@@ -5513,23 +5587,47 @@
       return { lat: 37.7749, lon: -122.4194, label: cleaned };
     };
 
-    const cardVenueRoute = (card) => Object.values(venueLocationRoutes).find((venue) => card.matches(venue.selector));
+    const cardVenueRoute = (card) => card ? Object.values(venueLocationRoutes).find((venue) => card.matches(venue.selector)) : null;
+
+    const pointForLocationText = (value) => {
+      const text = String(value || "").toLowerCase();
+      const zip = text.match(/\b9\d{4}\b/)?.[0] || "";
+      if (zip && localZipCentroids[zip]) return localZipCentroids[zip];
+      if (zip && localZipPrefixCentroids[zip.slice(0, 3)]) return localZipPrefixCentroids[zip.slice(0, 3)];
+      if (text.includes("castro valley")) return { lat: 37.6941, lon: -122.0864 };
+      if (text.includes("oakland")) return { lat: 37.8044, lon: -122.2712 };
+      if (text.includes("berkeley")) return { lat: 37.8715, lon: -122.2730 };
+      if (text.includes("san jose")) return { lat: 37.3382, lon: -121.8863 };
+      if (text.includes("petaluma")) return { lat: 38.2324, lon: -122.6367 };
+      if (text.includes("modesto")) return { lat: 37.6391, lon: -120.9969 };
+      if (text.includes("brentwood")) return { lat: 37.9329, lon: -121.6958 };
+      if (text.includes("san francisco")) return { lat: 37.7749, lon: -122.4194 };
+      return null;
+    };
+    const cardLocationPoint = (card) => cardVenueRoute(card) || pointForLocationText([card.dataset.locationName, card.dataset.locationAddress, card.dataset.locationQuery].join(" "));
 
     const sortShowCardsByLocation = (point, statusText = "") => {
       const list = document.querySelector("#shows-list");
       const status = document.querySelector("#show-filter-status");
       if (!list || !point) return;
-      const cards = Array.from(list.children).filter((node) => node.matches?.(".show-card, .generic-event-list"));
-      cards.sort((a, b) => {
-        const routeA = cardVenueRoute(a);
-        const routeB = cardVenueRoute(b);
+      const cards = showCardNodes(list);
+      const sortedCards = cards.sort((a, b) => {
+        const routeA = cardLocationPoint(a);
+        const routeB = cardLocationPoint(b);
         const distanceA = routeA ? milesBetween(point, routeA) : Number.MAX_SAFE_INTEGER;
         const distanceB = routeB ? milesBetween(point, routeB) : Number.MAX_SAFE_INTEGER;
         if (distanceA !== distanceB) return distanceA - distanceB;
         return parseCardDate(a) - parseCardDate(b);
-      }).forEach((node) => list.append(node));
-      const closest = cardVenueRoute(cards[0]);
-      if (status) status.textContent = statusText || (closest ? `Sorted closest to farthest. Closest known venue: ${closest.name}` : "Sorted closest to farthest.");
+      });
+      applyShowCardOrder(sortedCards);
+      const closestCard = [...sortedCards].sort((a, b) => {
+        const aPoint = cardLocationPoint(a);
+        const bPoint = cardLocationPoint(b);
+        return (aPoint ? milesBetween(point, aPoint) : Number.MAX_SAFE_INTEGER) - (bPoint ? milesBetween(point, bPoint) : Number.MAX_SAFE_INTEGER);
+      })[0];
+      const closestRoute = cardVenueRoute(closestCard);
+      const closestName = closestRoute?.name || closestCard?.dataset.locationName || "custom event";
+      if (status) status.textContent = statusText || (closestCard ? `Sorted closest to farthest. Closest known location: ${closestName}` : "Sorted closest to farthest.");
     };
 
     const initShowFilter = () => {
@@ -5696,7 +5794,7 @@
       const normalizeFontSource = (source) => {
         if (!source) return "";
         if (/^https?:\/\//i.test(source) || source.startsWith("/")) return source;
-        if (source.startsWith("assets/fonts/")) return `./stuffworked-on-a-bit/rhps/editor/public/${source}`;
+        if (source.startsWith("assets/fonts/")) return configuredFontSourceUrl(source);
         return source;
       };
 
@@ -5751,6 +5849,7 @@
 
       const renderTaggedLine = (line, source, event, venue) => {
         line.textContent = "";
+        source = expandStandaloneActionTags(source, event, venue);
         const appendInlineContent = (parent, text) => {
           String(text || "").split("<br>").forEach((linePart, breakIndex) => {
             if (breakIndex > 0) parent.append(document.createElement("br"));
@@ -5914,7 +6013,7 @@
       const normalizeFontSource = (source) => {
         if (!source) return "";
         if (/^https?:\/\//i.test(source) || source.startsWith("/")) return source;
-        if (source.startsWith("assets/fonts/")) return `./stuffworked-on-a-bit/rhps/editor/public/${source}`;
+        if (source.startsWith("assets/fonts/")) return configuredFontSourceUrl(source);
         return source;
       };
       const loadSiteFonts = (site) => {
@@ -5964,6 +6063,7 @@
       };
       const renderTaggedLine = (line, source, event, venue) => {
         line.textContent = "";
+        source = expandStandaloneActionTags(source, event, venue);
         const appendInlineContent = (parent, text) => {
           String(text || "").split("<br>").forEach((linePart, breakIndex) => {
             if (breakIndex > 0) parent.append(document.createElement("br"));
@@ -6092,7 +6192,7 @@
       const normalizeFontSource = (source) => {
         if (!source) return "";
         if (/^https?:\/\//i.test(source) || source.startsWith("/")) return source;
-        if (source.startsWith("assets/fonts/")) return `./stuffworked-on-a-bit/rhps/editor/public/${source}`;
+        if (source.startsWith("assets/fonts/")) return configuredFontSourceUrl(source);
         return source;
       };
       const loadSiteFonts = (site) => {
@@ -6142,6 +6242,7 @@
       };
       const renderTaggedLine = (line, source, event, venue) => {
         line.textContent = "";
+        source = expandStandaloneActionTags(source, event, venue);
         const appendInlineContent = (parent, text) => {
           String(text || "").split("<br>").forEach((linePart, breakIndex) => {
             if (breakIndex > 0) parent.append(document.createElement("br"));
@@ -6270,15 +6371,11 @@
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
       };
-      const directionsHref = (venue) => {
-        const query = venue?.mapsQuery || venue?.address || venue?.name || "";
-        return query ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}` : "#";
-      };
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
         if (isCalendarTag(tag)) return calendarDownloadHref(event, venue, indexToken, inner);
         if (isTicketLinkTag(tag)) return eventTicketUrlForTag(event, indexToken, inner);
-        if (tag === "directions-link") return directionsHref(venue);
-        if (tag === "theater-link") return venue?.website || "#";
+        if (tag === "directions-link") return directionsHrefFor(event, venue, inner);
+        if (tag === "theater-link") return theaterHrefFor(event, venue);
         return "#";
       };
       const appendInlineContent = (parent, text) => {
@@ -6304,6 +6401,7 @@
         };
       const renderTaggedLine = (line, source, event, venue) => {
         line.textContent = "";
+        source = expandStandaloneActionTags(source, event, venue);
         const pattern = calendarTagPattern;
         pattern.lastIndex = 0;
         let lastIndex = 0;
@@ -6314,10 +6412,10 @@
           anchor.href = taggedLinkHref(match[1], event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           if (isCalendarTag(match[1])) configureCalendarAnchor(anchor, event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           if (match[1] === "directions-link") {
-            const query = venue?.mapsQuery || venue?.address || venue?.name || "";
-            anchor.dataset.locationName = venue?.name || "";
-            anchor.dataset.locationAddress = venue?.address || "";
-            anchor.dataset.locationQuery = query;
+            const location = eventLocationInfo(event, venue, match[3]);
+            anchor.dataset.locationName = location.name || "";
+            anchor.dataset.locationAddress = location.address || "";
+            anchor.dataset.locationQuery = location.query || "";
           }
           if (isCalendarTag(match[1]) && match[3].includes("<next-show>")) anchor.textContent = calendarOccurrenceLabel(event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           else appendFormattedText(anchor, match[3], event, venue);
@@ -6411,15 +6509,11 @@
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
       };
-      const directionsHref = (venue) => {
-        const query = venue?.mapsQuery || venue?.address || venue?.name || "";
-        return query ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}` : "#";
-      };
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
         if (isCalendarTag(tag)) return calendarDownloadHref(event, venue, indexToken, inner);
         if (isTicketLinkTag(tag)) return eventTicketUrlForTag(event, indexToken, inner);
-        if (tag === "directions-link") return directionsHref(venue);
-        if (tag === "theater-link") return venue?.website || "#";
+        if (tag === "directions-link") return directionsHrefFor(event, venue, inner);
+        if (tag === "theater-link") return theaterHrefFor(event, venue);
         return "#";
       };
       const appendInlineContent = (parent, text) => {
@@ -6445,6 +6539,7 @@
         };
       const renderTaggedLine = (line, source, event, venue) => {
         line.textContent = "";
+        source = expandStandaloneActionTags(source, event, venue);
         const pattern = calendarTagPattern;
         pattern.lastIndex = 0;
         let lastIndex = 0;
@@ -6455,10 +6550,10 @@
           anchor.href = taggedLinkHref(match[1], event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           if (isCalendarTag(match[1])) configureCalendarAnchor(anchor, event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           if (match[1] === "directions-link") {
-            const query = venue?.mapsQuery || venue?.address || venue?.name || "";
-            anchor.dataset.locationName = venue?.name || "";
-            anchor.dataset.locationAddress = venue?.address || "";
-            anchor.dataset.locationQuery = query;
+            const location = eventLocationInfo(event, venue, match[3]);
+            anchor.dataset.locationName = location.name || "";
+            anchor.dataset.locationAddress = location.address || "";
+            anchor.dataset.locationQuery = location.query || "";
           }
           if (isCalendarTag(match[1]) && match[3].includes("<next-show>")) anchor.textContent = calendarOccurrenceLabel(event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           else appendFormattedText(anchor, match[3], event, venue);
@@ -6551,15 +6646,11 @@
           ? value
           : new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(date);
       };
-      const directionsHref = (venue) => {
-        const query = venue?.mapsQuery || venue?.address || venue?.name || "";
-        return query ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}` : "#";
-      };
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
         if (isCalendarTag(tag)) return calendarDownloadHref(event, venue, indexToken, inner);
         if (isTicketLinkTag(tag)) return eventTicketUrlForTag(event, indexToken, inner);
-        if (tag === "directions-link") return directionsHref(venue);
-        if (tag === "theater-link") return venue?.website || "#";
+        if (tag === "directions-link") return directionsHrefFor(event, venue, inner);
+        if (tag === "theater-link") return theaterHrefFor(event, venue);
         return "#";
       };
       const appendInlineContent = (parent, text) => {
@@ -6585,6 +6676,7 @@
         };
       const renderTaggedLine = (line, source, event, venue) => {
         line.textContent = "";
+        source = expandStandaloneActionTags(source, event, venue);
         const pattern = calendarTagPattern;
         pattern.lastIndex = 0;
         let lastIndex = 0;
@@ -6595,10 +6687,10 @@
           anchor.href = taggedLinkHref(match[1], event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           if (isCalendarTag(match[1])) configureCalendarAnchor(anchor, event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           if (match[1] === "directions-link") {
-            const query = venue?.mapsQuery || venue?.address || venue?.name || "";
-            anchor.dataset.locationName = venue?.name || "";
-            anchor.dataset.locationAddress = venue?.address || "";
-            anchor.dataset.locationQuery = query;
+            const location = eventLocationInfo(event, venue, match[3]);
+            anchor.dataset.locationName = location.name || "";
+            anchor.dataset.locationAddress = location.address || "";
+            anchor.dataset.locationQuery = location.query || "";
           }
           if (isCalendarTag(match[1]) && match[3].includes("<next-show>")) anchor.textContent = calendarOccurrenceLabel(event, venue, calendarIndexToken(match[1], match[2]), match[3]);
           else appendFormattedText(anchor, match[3], event, venue);
@@ -6668,6 +6760,9 @@
         const hasFlyer = Boolean(event.featuredImage);
         article.className = `generic-event-card${hasFlyer ? "" : " no-flyer"}`;
         article.dataset.eventDate = event.dateTime || "";
+        article.dataset.locationName = event.locationName || event.customVenueName || "";
+        article.dataset.locationAddress = [event.locationStreet, event.locationCity, event.locationZip, event.locationAddress].filter(Boolean).join(", ");
+        article.dataset.locationQuery = event.locationMapsQuery || article.dataset.locationAddress || article.dataset.locationName;
         if (hasFlyer) {
           const hasRegions = Array.isArray(event.flyerClickRegions) && event.flyerClickRegions.some((region) => region?.url && region?.widthPct && region?.heightPct);
           const flyer = document.createElement(primaryTicketUrl(event) !== "#" && !hasRegions ? "a" : "div");
@@ -6699,7 +6794,7 @@
         const meta = document.createElement("p");
         meta.className = "generic-event-meta";
         meta.textContent = formatDate(event.dateTime);
-        if (meta.textContent) copy.append(meta);
+        if (event.showDateText !== false && meta.textContent) copy.append(meta);
         if (event.notes) {
           const notes = document.createElement("p");
           notes.className = "generic-event-meta";
@@ -6708,20 +6803,22 @@
         }
         const actions = document.createElement("div");
         actions.className = "show-actions";
-        if (primaryTicketUrl(event) !== "#") {
+        if (event.showTicketButton !== false && primaryTicketUrl(event) !== "#") {
           const ticket = document.createElement("a");
           ticket.className = "button";
           ticket.href = primaryTicketUrl(event);
           ticket.textContent = "Tickets";
           actions.append(ticket);
         }
-        const calendar = document.createElement("a");
-        calendar.className = "button secondary";
-        calendar.href = taggedLinkHref("calendar-link", event, null);
-        configureCalendarAnchor(calendar, event, null);
-        calendar.textContent = "Add to calendar";
-        actions.append(calendar);
-        copy.append(actions);
+        if (event.showCalendarButton !== false) {
+          const calendar = document.createElement("a");
+          calendar.className = "button secondary";
+          calendar.href = taggedLinkHref("calendar-link", event, null);
+          configureCalendarAnchor(calendar, event, null);
+          calendar.textContent = "Add to calendar";
+          actions.append(calendar);
+        }
+        if (actions.children.length) copy.append(actions);
         article.append(copy);
         return article;
       };

@@ -1307,3 +1307,168 @@ This file records concrete project changes made during assisted work. Each entry
 - Changed the green sonic oscillator burst from viewport-fixed positioning to document-positioned coordinates so it stays down by the pole switch area after it fires instead of sticking to the screen while scrolling.
 - Published the State alpha asset and pole burst scroll fix to `blrocky/blrocky.com` at commit `708d4c5`; raw GitHub verifies the new asset and source references while GitHub Pages edge propagation is still catching up.
 - Followed up after visual testing showed the State marquee still looked black: changed `.state-marquee-stage` from `background: #000` to `background: transparent` and regenerated the alpha WebM with a stronger black-key threshold.
+
+### State Transparency And Pole Burst Containing Block
+- Date: 2026-09-11 12:05:00 PDT
+- Files touched: `index.html`, `PROJECT_LOG.md`, and the matching VM copy under `/srv/blrocky`
+- Confirmed the State marquee stage is transparent so the alpha WebM is not framed by a black CSS rectangle.
+- Moved the green sonic oscillator burst into the animation-controls section and made that section its containing block. Its position is now calculated relative to the pole controls, so it remains anchored to the control area while the page scrolls instead of behaving like a viewport overlay.
+- Kept the burst disabled when animations are off and limited its width to the requested half-page band.
+
+### Private Editor Archive Backup Job
+- Date: 2026-09-11 12:20:00 PDT
+- Files touched: `scripts/archive_editor_to_gcs.sh`, `docs/EDITOR_ARCHIVE_BACKUPS.md`, `PROJECT_LOG.md`, and the corresponding scheduled files on `blrocky-editor-1`
+- Added a root-run backup job that tars the complete `/srv/blrocky` PHP/editor tree, including protected files and future private uploads, then uploads a date-stamped archive to `gs://blrocky-editor-pg-archive`.
+- Scheduled the job for Monday at 00:00 in `America/Los_Angeles` through `/etc/cron.d/blrocky-editor-archive`; local staging uses restrictive permissions and is removed after upload.
+- Documented the required one-time owner action to create the private Archive-class bucket with uniform bucket-level access and public access prevention, then grant the VM service account upload-only access.
+- Attempted bucket creation from the VM; Google Cloud correctly denied it because `blrocky-editor-sync@blrocky.iam.gserviceaccount.com` lacks project-level `storage.buckets.create`. The bucket is therefore not created yet, and the scheduled job will remain idle until the documented owner setup is completed.
+- Encryption note: Cloud Storage server-side encryption is automatic. Customer-managed Cloud KMS encryption is documented as the next step before private user data is added; the current VM identity does not have permission to create the bucket or manage KMS.
+
+### Mobile Overflow And Time Warp Cadence
+- Date: 2026-09-11 12:35:00 PDT
+- Files touched: `index.html`, `PROJECT_LOG.md`
+- Added root-level horizontal overflow protection and mobile width constraints so decorative overflow cannot create a horizontal phone scroll or shift the content off center.
+- Restored the actual animated Time Warp spans on mobile. The previous mobile rule hid those spans and displayed a static pseudo-element instead, preventing the cadence loop from being visible.
+- Kept the three mobile lines non-wrapping with viewport-scaled sizes so they remain inside the available phone width.
+- Set mobile cadence words to readable defaults before the first animation frame, preventing a blank headline during initial viewport gating while preserving the loop animation when active.
+- Anchored the mobile Phoenix logo sway from its top-left edge so the rotation cannot extend the document boundary and create a subtle horizontal offset.
+
+### Editor Preview And Live Pull Workflow
+- Date: 2026-09-11 14:35:00 PDT
+- Files touched: `index.html`, `stuffworked-on-a-bit/rhps/editor/public/index.php`, `stuffworked-on-a-bit/rhps/editor/public/assets/editor.css`, `scripts/pull_live_editor_state.sh`, `.gitignore`, `PROJECT_LOG.md`, and pulled live editor JSON/upload/font data
+- Added `window.BLROCKY_PREVIEW_DATA` support to the static homepage so preview pages can hydrate from injected JSON instead of saving draft data into the real editor files.
+- Added an editor `View preview` button for event and venue forms. It generates `/samples/sample-of-index-test-user-YYYYMMDD-HHMMSS.html`, opens it in a new tab, and keeps only the 10 newest preview samples.
+- Added editor version label `v1.0.0` as the current working baseline.
+- Consolidated Static info box ordering so the move arrows live on each collapsible box instead of a separate duplicate display-order list.
+- Replaced no-venue flyer region manual percent entry with an editor grid painter. Regions 1-4 can be painted over the current flyer, applied into percentage bounds, and assigned normal URLs or tag targets such as `<ticket-link>` and `<ticket-link-1>`.
+- Added `scripts/pull_live_editor_state.sh` for the future workflow: pull current VM editor JSON/uploads/fonts first, edit locally, review, then deploy. The script backs up local overwritten paths and falls back to `ssh`/`sudo tar` when `rsync` is unavailable.
+- Ran the pull script in `--data-only` mode to bring the live VM editor content and media state down locally without overwriting the new local editor PHP/CSS changes.
+
+### Editor Preview Deployment
+- Date: 2026-09-11 14:45:00 PDT
+- Files touched: `stuffworked-on-a-bit/rhps/editor/public/index.php`, `PROJECT_LOG.md`, and matching deployed files under `/srv/blrocky`
+- Deployed the editor preview workflow to `blrocky-editor-1`.
+- Found that direct `/samples/sample-of-index-*.html` URLs returned the editor login page on the VM because nginx routes unknown paths through the editor public root.
+- Added a PHP preview sample endpoint at `/?previewSample=sample-of-index-*.html` so generated full-page previews are served from `/srv/blrocky/samples` through the existing editor host routing.
+- Published the matching static homepage changes to `blrocky/blrocky.com` at commit `64c5762`, including preview-data hydration support and generic flyer-region tag URL resolution.
+
+### Storage Offline Retry And HTTPS Diagnosis
+- Date: 2026-09-12 00:00:00 PDT
+- Files touched: `index.html`, `PROJECT_LOG.md`
+- Added a retry loop to the static homepage storage-offline screen. If `site.json`, `events.json`, `venues.json`, or `promos.json` fails to load, the fallback page now retries the storage preflight every 5 seconds for up to 5 attempts.
+- Cleared failed JSON promise caches between retries and bumped the per-page-load cache key so a temporary storage failure does not keep poisoning later retry attempts.
+- The fallback screen now shows retry status and reloads the page automatically once all required show-info JSON files are reachable again.
+- Diagnosed the custom-domain HTTPS issue: Squarespace DNS currently resolves the apex and `www` hostnames to the correct GitHub Pages targets, but GitHub is still serving its default `*.github.io` certificate for `blrocky.com`. The GitHub Pages custom domain/certificate provisioning step needs to be restarted or completed in the repository Pages settings.
+- Published the retry change to `blrocky/blrocky.com` at commit `a635a6b`.
+
+### Local Repository Cleanup Pass
+- Date: 2026-09-12 10:03:44 PDT
+- Files touched: `.gitignore`, `README.md`, `public-data-config.js`, `PROJECT_LOG.md`, `docs/notes/9-11.txt`, `docs/notes/9-11-2.txt`, `docs/deployment/DEPLOYMENT_NOTES.md`, `docs/deployment/dns-setup.txt`
+- Moved the remaining root-level dated notes into `docs/notes/` and moved DNS/deployment references into `docs/deployment/` so the repo root is mostly runtime entry points and core project files.
+- Kept homepage-critical paths unchanged: `index.html`, `assets/`, `fonts/`, `public-data-config.js`, and the PHP editor directory remain in place.
+- Expanded `.gitignore` for local Codex/session folders, editor runtime uploads, editor-downloaded fonts, backup snapshots, generated samples, and common secret/credential file names.
+- Updated the README with the current local layout, preview command, and deploy-safety checks.
+- Updated `public-data-config.js` so production hosts continue using `https://storage.blrocky.com`, while localhost/file previews fall back to repo-relative JSON/assets. This keeps local review usable without adding localhost to storage CORS.
+- Verified `git diff --check`, PHP syntax for the editor, local static HTTP `200`, local editor HTTP `200`, and a headless Chrome load of `http://127.0.0.1:8082/index.html` with `body.storage-ready`.
+- Captured ignored local review screenshots at `.tmp/repo-clean-homepage-desktop.png` and `.tmp/repo-clean-homepage-mobile.png`.
+- This cleanup was intentionally local-only; no GitHub Pages push was performed.
+
+### Stardos Font Repair
+- Date: 2026-09-12 10:14:24 PDT
+- Files touched: `fonts/_extracted/stardos-stencil/font-1.ttf`, `fonts/_extracted/stardos-stencil/font-2.ttf`, `fonts/site-fonts.css`, `start-python-server.sh`, `index.html`, `scripts/sync-public-to-gcs.sh`, `PROJECT_LOG.md`
+- Copied the Stardos Stencil regular and bold font files into the public root font bundle so static controls using `font-family: "Stardos Stencil"` do not depend on dynamic editor font loading.
+- Updated `fonts/site-fonts.css` with explicit regular and bold `@font-face` entries for `Stardos Stencil`.
+- Updated `start-python-server.sh` so future regeneration preserves the `Stardos Stencil` family name instead of generating `font-1` and `font-2` families.
+- Updated the static homepage's dynamic font source resolver so editor font sources under `assets/fonts/` use `https://storage.blrocky.com/assets/fonts/...` in production and the editor-local folder in local preview.
+- Updated `scripts/sync-public-to-gcs.sh` so future public syncs include editor-uploaded fonts under `assets/fonts`.
+- Verified shell syntax for the preview/sync scripts, `git diff --check`, PHP editor syntax, direct local HTTP `200` responses for both Stardos TTF files, a browser `document.fonts.check("16px 'Stardos Stencil'") === true`, and a headless Chrome homepage load with `body.storage-ready`.
+- This repair is local-only until the current cleanup branch is approved for a GitHub Pages deploy.
+
+### Stardos Local Cache Bust
+- Date: 2026-09-12 16:53:36 PDT
+- Files touched: `index.html`, `PROJECT_LOG.md`
+- Compared the live GitHub Pages copy against the local server. Live still has the pre-Stardos public font bundle and no `configuredFontSourceUrl` helper, while local has the Stardos repair.
+- Found that local `fonts/site-fonts.css` and both Stardos TTF files return HTTP `200`, but a browser could still keep an older unversioned stylesheet in cache.
+- Added a version query to the homepage font stylesheet link: `./fonts/site-fonts.css?v=20260912-stardos`.
+- This is local-only until the current cleanup branch is approved for a GitHub Pages deploy.
+
+### Editor Event Region Controls
+- Date: 2026-09-12 17:46:15 PDT
+- Files touched: `stuffworked-on-a-bit/rhps/editor/public/index.php`, `stuffworked-on-a-bit/rhps/editor/public/assets/editor.css`, `index.html`, `start-python-server.sh`, `ops/gcloud/editor-nginx.conf`, `PROJECT_LOG.md`
+- Added per-event editor checkboxes for the automatic public `Tickets` and `Add to calendar` buttons. Old events default to showing both buttons, and tagged links inside event text still work when the automatic buttons are disabled.
+- Updated the generic event renderer in `index.html` so those saved button flags control whether automatic public buttons are appended.
+- Upgraded the no-venue flyer grid selector to support press-and-drag painting, region-colored paint buttons and form rows, saved-region prefill, and taggable URL/target fields.
+- Added a paint/apply bounds mode that is checked by default; unchecking it opens a custom CSS bounds textarea that accepts either CSS declarations or a simple four-value percent list.
+- Tightened custom bounds saving so an unchecked paint/apply region must parse valid custom bounds instead of silently falling back to hidden painted values.
+- Changed preview sample generation so the sample page can use a separate asset base, and updated local preview startup to point samples at the static preview server for homepage assets.
+- Updated the tracked VM nginx editor config so `edit.blrocky.com` can serve editor assets, editor uploads, homepage `assets/`, homepage `fonts/`, and `public-data-config.js` without falling through to the PHP editor page.
+
+### Editor HTTPS Setup
+- Date: 2026-09-12 17:53:23 PDT
+- Files touched: `ops/gcloud/editor-nginx.conf`, `PROJECT_LOG.md`, and `/etc/nginx/sites-available/blrocky-editor` plus Certbot-managed files on `blrocky-editor-1`
+- Installed `certbot` and `python3-certbot-nginx` on the Debian 12 VM.
+- Issued and installed a Let's Encrypt certificate for `edit.blrocky.com` using the nginx plugin and the public contact email.
+- Enabled HTTP-to-HTTPS redirect for `edit.blrocky.com`; HTTP now returns `301` to HTTPS.
+- Verified the external certificate subject is `CN=edit.blrocky.com`, issued by Let's Encrypt, valid from 2026-09-12 23:50:31 UTC through 2026-12-11 23:50:30 UTC.
+- Confirmed the certbot renewal timer is installed. A renewal dry-run was started but stopped after certbot reported a non-interactive randomized wait of about 311 seconds.
+
+### No-Venue Preview Asset And Location Mapping
+- Date: 2026-09-12 18:21:56 PDT
+- Files touched: `index.html`, `stuffworked-on-a-bit/rhps/editor/public/index.php`, `stuffworked-on-a-bit/rhps/editor/public/assets/editor.css`, `PROJECT_LOG.md`, and deployed matching code files under `/srv/blrocky`
+- Updated preview sample serving so saved sample URLs extract their preview JSON but render through the current root `index.html` template instead of freezing old homepage code.
+- Added `previewUploadBaseUrl` to preview config. Preview pages now resolve `assets/uploads/...` media through the editor host while published/static pages can continue using `storage.blrocky.com`.
+- Added no-venue custom location fields to the event editor: location name, address, maps query, and location website.
+- Updated the public renderer so no-venue directions and calendar location use the custom event location fields first, then fall back to text inside `<directions-link>...</directions-link>`.
+- Uploaded the Chabot event image from the editor VM to `gs://blrocky-public-data/assets/uploads/events/2026-09-17t19-00-07-00-rhps-at-the-chabot.webp` so the stored storage URL also works after publishing.
+- Verified deployed PHP syntax, nginx syntax, editor upload URL `200`, storage upload URL `200`, and the existing Chabot preview payload resolving the image through `https://edit.blrocky.com/assets/uploads/events/2026-09-17t19-00-07-00-rhps-at-the-chabot.webp`.
+### Preview Offline Loop, Custom Location Sorting, And Durable Flyer Painting
+
+- Date logged: 2026-09-12
+- Preview pages now recognize embedded preview data and do not start the storage-server offline retry loop.
+- Custom no-venue cards expose location metadata and participate in local distance sorting using ZIP codes and known Bay Area city centroids.
+- No-venue event editing now separates street address, city, and ZIP code while retaining a combined address for compatibility.
+- Flyer region painting now tracks pointer movement while held and synchronizes hidden percentage bounds after each painted cell, so the latest region is included in saves and editor drafts.
+- Added `domain-moved.html`, a five-second meta-refresh/JavaScript redirect with a visible fallback link to `https://blrocky.com/`.
+- ZIP-prefix centroids are also used for custom-event distance sorting when an exact local ZIP centroid is unavailable.
+
+### No-Venue Date Sort And Action Tag Resolution
+
+- Date logged: 2026-09-12
+- Fixed date sorting for cards inside the no-venue event list instead of treating the entire list container as one undated card.
+- Custom-event directions links now resolve through event location fields or the location hint inside a paired `<directions-link>` tag.
+- Editor action-tag suggestions now insert single markers such as `<calendar-link>`, `<directions-link>`, and `<ticket-link>`; paired markup remains supported when text is explicitly wrapped.
+- Standalone action markers are expanded into labeled public links with the event-specific calendar, ticket, or location target.
+
+### Toggle Automatic Event Date Text
+
+- Date logged: 2026-09-12
+- Added the per-event `showDateText` setting, defaulting to enabled for existing records.
+- The editor exposes it beside the automatic Tickets and Add to calendar controls.
+- Standard venue cards hide only their automatic Date line when disabled; custom no-venue cards omit the automatic date/time paragraph while preserving any date written into a general text line.
+- `<navicon>` remains an inline, `em`-sized masked icon and therefore follows the surrounding text font size responsively.
+
+### Navicon Aspect Ratio Fix
+
+- Date logged: 2026-09-12
+- Removed the legacy left-padding hack from image-based navicons, which was making the location pin appear stretched.
+- Enforced a square aspect ratio and preserved inherited `em` sizing for both generated and static navicon instances.
+
+### Published Event Sync
+
+- Date logged: 2026-09-12
+- Confirmed the editor VM had the Chabot event marked `published`, while the public storage bucket still contained the older event JSON.
+- Published the current VM `events.json` to `gs://blrocky-public-data/data/events.json`; the public copy now contains the published event.
+- Added automatic public JSON synchronization after event, venue, site, or promo saves when `PUBLIC_DATA_BUCKET` is configured.
+- The editor now reports a clear `Saved locally, but public publish failed...` error if the bucket sync cannot complete.
+
+### Chabot Event Local State Sync
+- Date logged: 2026-09-12
+- Confirmed the published Chabot event was present in the public storage JSON and rendered by the live homepage, while the local checkout still held an older `draft` copy without its uploaded image.
+- Preserved the local events file under `.tmp/events-sync-20260912-205203/events.json` and synced the current editor-side events JSON into `stuffworked-on-a-bit/rhps/data/events.json`.
+- This keeps local static previews aligned with the editor VM; the public storage copy was already published and did not need another upload.
+
+### Unified Public Event Ordering
+- Date logged: 2026-09-12
+- Fixed the homepage date and location sort so no-venue event cards participate in the same ordering as regular venue cards.
+- The generic event container now exposes its cards as homepage grid items, and the sort routines assign a shared visual order across all upcoming events.
+- The corrected homepage template is being deployed so the published page uses the same behavior as editor samples.
