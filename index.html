@@ -373,11 +373,16 @@
       object-fit: initial;
     }
 
-    .nav-icon {
+    .nav-icon,
+    navicon {
+      display: inline-block;
       width: 1.05em;
       height: 1.05em;
       margin: 0 .18em 0 0;
       vertical-align: -.16em;
+      font: inherit;
+      color: currentColor;
+      text-decoration: inherit;
       background: currentColor;
       filter: drop-shadow(0 .04em .06em #000b);
       -webkit-mask: url("./assets/icons/nav.svg") center / contain no-repeat;
@@ -575,24 +580,36 @@
       transition: color .16s ease, font-size .16s ease, text-shadow .16s ease;
     }
 
-    .has-line-hover:hover,
-    .has-line-hover:focus-within {
+    .has-line-hover:hover:not(:has(a:hover)),
+    .has-line-hover:focus-within:not(:has(a:focus-visible)) {
       color: var(--line-hover-color) !important;
       font-weight: var(--line-hover-font-weight, inherit) !important;
       font-style: var(--line-hover-font-style, inherit) !important;
       text-decoration: var(--line-hover-text-decoration, inherit) !important;
     }
 
-    .has-line-hover-size:hover,
-    .has-line-hover-size:focus-within {
+    .has-line-hover-size:hover:not(:has(a:hover)),
+    .has-line-hover-size:focus-within:not(:has(a:focus-visible)) {
       font-size: var(--line-hover-font-size) !important;
     }
 
-    .has-line-hover:hover a,
-    .has-line-hover:focus-within a {
+    .has-line-hover a {
       color: inherit;
       font: inherit;
       text-decoration: inherit;
+    }
+
+    .has-line-hover a:hover,
+    .has-line-hover a:focus-visible {
+      color: var(--line-hover-color) !important;
+      font-weight: var(--line-hover-font-weight, inherit) !important;
+      font-style: var(--line-hover-font-style, inherit) !important;
+      text-decoration: var(--line-hover-text-decoration, inherit) !important;
+    }
+
+    .has-line-hover.has-line-hover-size a:hover,
+    .has-line-hover.has-line-hover-size a:focus-visible {
+      font-size: var(--line-hover-font-size) !important;
     }
 
     .inline-format {
@@ -732,7 +749,8 @@
     .uc-marquee-stage .party-window::before,
     .uc-marquee-stage .party-window::after,
     .uc-marquee-stage .marquee-copy,
-    .uc-marquee-stage .venue-website-link {
+    .uc-marquee-stage .venue-website-link,
+    .uc-marquee-stage .venue-directions-link {
       position: absolute;
     }
 
@@ -896,11 +914,10 @@
       background: transparent;
     }
 
-    .uc-marquee-stage .venue-link-navicon {
-      position: absolute;
-      left: 50%;
-      bottom: -2%;
-      z-index: 1;
+    .uc-marquee-stage .venue-directions-link {
+      left: 73.49%;
+      bottom: 9.5%;
+      z-index: 8;
       display: grid;
       place-items: center;
       width: clamp(42px, 8.5cqw, 78px);
@@ -911,7 +928,15 @@
       background: transparent;
     }
 
+    .uc-marquee-stage .venue-link-navicon {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
     .uc-marquee-stage .venue-link-navicon img {
+      position: static;
       width: 56%;
       height: 56%;
       object-fit: contain;
@@ -921,7 +946,8 @@
         drop-shadow(0 0 .42em #ffd51fcc);
     }
 
-    .uc-marquee-stage .venue-website-link:focus-visible {
+    .uc-marquee-stage .venue-website-link:focus-visible,
+    .uc-marquee-stage .venue-directions-link:focus-visible {
       outline: 2px solid #fff;
       outline-offset: 3px;
     }
@@ -1908,6 +1934,21 @@
       gap: clamp(18px, 6vw, 68px);
       align-items: end;
       justify-content: space-between;
+    }
+
+    .patreon-support-control {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    #patreon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: min(100%, 14rem);
+      text-align: center;
+      box-shadow: 0 0 .8rem #f08a2466;
     }
 
     .display-mode-control {
@@ -3340,10 +3381,10 @@
       display: none;
     }
 
-    body.mobile-display .uc-marquee-stage .venue-link-navicon {
+    body.mobile-display .uc-marquee-stage .venue-directions-link {
       width: clamp(34px, 8cqw, 56px);
       height: clamp(34px, 8cqw, 56px);
-      bottom: -1%;
+      bottom: 10%;
     }
 
     body.mobile-display .state-marquee-stage {
@@ -3549,7 +3590,7 @@
 <body class="is-intro-running">
   <div id="intro-animation" class="intro-animation" aria-label="Loading BL Rocky intro">
     <div id="intro-frame" class="intro-frame has-loading-mask" role="button" tabindex="0" aria-label="Skip intro and load site" title="Skip intro">
-      <video id="intro-video" class="brand-video" src="./assets/media/loading-animation.mp4" muted playsinline preload="auto"></video>
+      <video id="intro-video" class="brand-video" src="./assets/media/loading-animation-clean.mp4" muted playsinline preload="auto"></video>
     </div>
     <button id="intro-skip-text" class="intro-skip-text" type="button" title="Skip intro and load site">Skip intro</button>
     <div class="intro-skip-zones">
@@ -3627,7 +3668,8 @@
                   <h2 id="uc-theatre-marquee-line-3" data-event-field="marqueeLine3"></h2>
                   <h3 id="uc-theatre-marquee-subline" data-event-field="marqueeSubline"></h3>
                 </div>
-                <a id="uc-theatre-venue-link" class="venue-website-link" href="https://theuctheatre.org/" aria-label="Open UC Theatre website" title="Open UC Theatre website">
+                <a id="uc-theatre-venue-link" class="venue-website-link" href="https://theuctheatre.org/" aria-label="Open UC Theatre website" title="Open UC Theatre website"></a>
+                <a id="uc-theatre-directions-link" class="venue-directions-link" href="https://www.openstreetmap.org/search?query=2036%20University%20Ave%2C%20Berkeley%2C%20CA%2094704" aria-label="Get directions to the UC Theatre" title="Get directions to the UC Theatre">
                   <span class="venue-link-navicon" aria-hidden="true">
                     <img data-defer-src="./assets/icons/nav.svg" alt="">
                   </span>
@@ -3758,7 +3800,7 @@
               <div class="details-body">
                 <p>UC Theatre: our Berkeley home for Rocky Horror.</p>
                 <p><a href="https://theuctheatre.org/">Visit the UC Theatre website</a>.</p>
-                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=2036%20University%20Ave%2C%20Berkeley%2C%20CA%2094704"><img class="inline-icon nav-icon" data-defer-src="./assets/icons/nav.svg" alt="" aria-hidden="true">2036 University Ave, Berkeley, CA 94704</a></p>
+                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=2036%20University%20Ave%2C%20Berkeley%2C%20CA%2094704"><navicon></navicon>2036 University Ave, Berkeley, CA 94704</a></p>
               </div>
             </details>
             <details id="venue-info-secondary" class="info-block venue-phoenix">
@@ -3766,7 +3808,7 @@
               <div class="details-body">
                 <p>The Phoenix is our home in the North Bay. It is a skatepark, it is a skate shop, it is a hangout spot, and it is a punk venue. We absolutely love bringing Rocky to that community.</p>
                 <p>We generally have a couple of shows there in October and one in spring, so do not miss us when we come to town.</p>
-                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=201%20Washington%20St%2C%20Petaluma%2C%20CA%2094952"><img class="inline-icon nav-icon" data-defer-src="./assets/icons/nav.svg" alt="" aria-hidden="true">201 Washington St., Petaluma, CA 94952</a></p>
+                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=201%20Washington%20St%2C%20Petaluma%2C%20CA%2094952"><navicon></navicon>201 Washington St., Petaluma, CA 94952</a></p>
               </div>
             </details>
             <details id="venue-info-state-theatre" class="info-block venue-state">
@@ -3774,15 +3816,15 @@
               <div class="details-body">
                 <p>The State has become our annual tradition of hopping in our cars and bringing the show to the Central Valley.</p>
                 <p>The State has been a great host to us and gladly invites us to throw toilet paper and get undressed in their gigantic theater.</p>
-                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=1307%20J%20Street%2C%20Modesto%2C%20CA%2095354"><img class="inline-icon nav-icon" data-defer-src="./assets/icons/nav.svg" alt="" aria-hidden="true">1307 J Street, Modesto, CA 95354</a></p>
+                <p>Directions to the theater: <a class="direction-link" href="https://www.openstreetmap.org/search?query=1307%20J%20Street%2C%20Modesto%2C%20CA%2095354"><navicon></navicon>1307 J Street, Modesto, CA 95354</a></p>
               </div>
             </details>
           </div>
           <div id="coffin-clock-decoration" class="coffin-clock-decoration">
             <button id="coffin-clock" class="coffin-clock" type="button" data-frame="closed" aria-label="Open coffin clock decoration">
-              <img class="coffin-frame-closed" data-defer-src="./assets/coffin-clock-closed.webp" alt="" aria-hidden="true">
-              <img class="coffin-frame-halfway" data-defer-src="./assets/coffin-clock-halfway.webp" alt="" aria-hidden="true">
-              <img class="coffin-frame-open" data-defer-src="./assets/coffin-clock-open.webp" alt="" aria-hidden="true">
+              <img class="coffin-frame-closed" data-defer-src="./assets/coffin-clock-closed.webp?v=20260913-black-transparent" alt="" aria-hidden="true">
+              <img class="coffin-frame-halfway" data-defer-src="./assets/coffin-clock-halfway.webp?v=20260913-black-transparent" alt="" aria-hidden="true">
+              <img class="coffin-frame-open" data-defer-src="./assets/coffin-clock-open.webp?v=20260913-black-transparent" alt="" aria-hidden="true">
             </button>
           </div>
         </div>
@@ -3878,6 +3920,9 @@
     </section>
 
     <section id="animation-controls" aria-label="Animation and display controls">
+      <div class="page-shell patreon-support-control">
+        <a id="patreon-button" class="button" href="https://www.patreon.com/blfam" target="_blank" rel="noopener" hidden><span id="patreon-button-text">Patreon Donation</span></a>
+      </div>
       <div class="page-shell footer-actions">
         <button id="toggle-animation-button" class="knife-switch-control" type="button" aria-pressed="false" aria-label="Toggle site animations" title="Toggle site animations">
           <img id="knife-switch-image" data-defer-src="./assets/switches/knife-switch/medusa-0.png" alt="" aria-hidden="true">
@@ -4161,7 +4206,7 @@
     const landingAnimationMs = 3000;
     const animationSources = {
       loading: {
-        mp4: "./assets/media/loading-animation.mp4"
+        mp4: "./assets/media/loading-animation-clean.mp4"
       },
       active: {
         mp4: "./assets/media/active-logo.mp4"
@@ -5391,7 +5436,8 @@
     const renderStaticInfoContent = (body, source) => {
       const text = String(source || "").trim();
       if (!text) return;
-      body.innerHTML = text;
+      const normalizedText = text.replace(/<navicon>(?!\s*<\/navicon>)/gi, "<navicon></navicon>");
+      body.innerHTML = normalizedText;
       convertInlineIconTags(body);
     };
 
@@ -5461,6 +5507,8 @@
       const joinLink = document.querySelector("#join-cast-email-link");
       const footerEmail = document.querySelector("#email-button");
       const joinTitle = document.querySelector("#join-cast-title");
+      const patreonButton = document.querySelector("#patreon-button");
+      const patreonButtonText = document.querySelector("#patreon-button-text");
       const shopLink = document.querySelector("#shop-link");
       const shopText = document.querySelector("#shop-link-text");
       const socialLinks = {
@@ -5469,11 +5517,11 @@
         tiktok: document.querySelector("#tiktok-link"),
         linktree: document.querySelector("#linktree-link")
       };
-      if (email) {
-        const joinHref = `mailto:${encodeURIComponent(email).replace(/%40/g, "@")}?subject=Join%20cast`;
-        if (joinLink) joinLink.href = joinHref;
-        if (footerEmail) footerEmail.href = `mailto:${encodeURIComponent(email).replace(/%40/g, "@")}`;
-      }
+      const joinMode = siteSettings.joinCastButtonMode === "link" ? "link" : "email";
+      const externalJoinHref = String(siteSettings.joinCastButtonLink || "https://docs.google.com/forms/d/e/1FAIpQLSdv-ZjtlLq6vr-Z40s6MLp49SyLPLTZ6qF2bTLpCLBBqSNpiA/viewform").trim();
+      const joinHref = email ? `mailto:${encodeURIComponent(email).replace(/%40/g, "@")}?subject=Join%20cast` : "#";
+      if (joinLink) joinLink.href = joinMode === "link" && externalJoinHref ? externalJoinHref : joinHref;
+      if (email && footerEmail) footerEmail.href = `mailto:${encodeURIComponent(email).replace(/%40/g, "@")}`;
       Object.entries(socialLinks).forEach(([key, anchor]) => {
         const href = siteSettings.socials?.[key] || "";
         if (!anchor) return;
@@ -5506,6 +5554,19 @@
       applyTextStyle(openingsText, styles.body);
       applyTextStyle(afterText, styles.body);
       applyTextStyle(rolesList, styles.roles);
+      if (joinLink && !siteSettings.joinCastButtonText) joinLink.textContent = siteSettings.joinCastButtonMode === "link" ? "Click Here!" : "Email about joining";
+      if (patreonButton) {
+        const patreonStyle = siteSettings.patreonButtonStyle && typeof siteSettings.patreonButtonStyle === "object" ? siteSettings.patreonButtonStyle : {};
+        patreonButton.hidden = siteSettings.patreonEnabled === false;
+        patreonButton.href = String(siteSettings.patreonLink || "https://www.patreon.com/blfam").trim() || "https://www.patreon.com/blfam";
+        if (patreonButtonText) {
+          patreonButtonText.textContent = siteSettings.patreonText || "Patreon Donation";
+        } else {
+          patreonButton.textContent = siteSettings.patreonText || "Patreon Donation";
+        }
+        applyTextStyle(patreonButton, patreonStyle);
+        patreonButton.style.backgroundColor = patreonStyle.backgroundColor || "#f08a24";
+      }
       const shopEnabled = siteSettings.shopEnabled !== false;
       const shopHref = String(siteSettings.shopLink || "https://blrhps.square.site/").trim();
       if (shopLink) {

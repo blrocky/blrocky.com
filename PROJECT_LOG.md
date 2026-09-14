@@ -2,6 +2,17 @@
 
 This file records concrete project changes made during assisted work. Each entry should include the date, files touched, what changed, and why.
 
+## 2026-09-13
+
+### Public GitHub publisher
+- Files touched: `scripts/publish-github.sh`, `PROJECT_LOG.md`
+- Added a clean-clone publisher for the GitHub Pages `master` branch. It copies only the static homepage, approved public metadata, public assets, and web fonts; excludes source packages and VM/editor/private files; validates staged paths; and supports `--dry-run` before pushing.
+- The directory sync uses a portable tar pipe instead of requiring `rsync`, so the same command can run on the minimal Linux VM.
+- The dry-run validation caught and corrected GNU tar directory-exclude matching so source asset packages cannot enter the public staging tree.
+- The staging step now handles optional public files that are absent on one source machine without failing Git pathspec validation.
+- Installed the publisher on the VM as `/usr/local/sbin/blrocky-publish-github` and verified its dry run against `/srv/blrocky`; installation does not modify the editor, nginx, or private-video routes.
+- Reason: Public deployment needs one repeatable command without allowing PHP editor state, private-video configuration, credentials, or unrelated worktree changes to leak into the public repository.
+
 ## 2026-09-04
 
 ### Root font zip extraction workflow
@@ -1483,3 +1494,90 @@ This file records concrete project changes made during assisted work. Each entry
 - Added a five-second grace period before the offline panel appears and a ten-second timeout for each required JSON request.
 - Removed the full-page reload from successful retries; the page now clears the fallback state and refreshes its data-backed sections and deferred media in place.
 - A transient storage delay can no longer immediately replace the page or create a reload loop.
+
+### VM Codex Profiles
+- Date logged: 2026-09-13
+- Added `AGENTS.md` project context for Codex sessions in the VM project root.
+- Added `ops/codex/dev-code`, which provides `Dev-code -t` read-only sample mode and `Dev-code -danger-changer` workspace-write implementation mode.
+- The wrapper uses Codex's explicit sandbox modes, keeps normal approval prompts enabled, and requires explicit project-root scope.
+
+### Join Cast Link Mode And Patreon Button
+- Date logged: 2026-09-13
+- Added site-settings support for choosing the Join Cast button action between the existing `mailto:` flow and an external link flow.
+- Added the Google Form as the external-link default and `Click Here!` as the link-mode button label default.
+- Added a configurable Patreon support button above the animation/display controls, defaulting to `Patreon Donation` and `https://www.patreon.com/blfam` with an orange background.
+- Added editor controls for Patreon visibility, text, link, background/text colors, font, size, bold, italic, and underline settings.
+- Verified the local PHP editor, JSON data, and headless local homepage render. VM and GitHub were not changed.
+
+### Private Video Server
+- Date logged: 2026-09-14
+- Uploaded `/media/jaisonawsome/USB/2019_09_20.mp4` to the VM at `/srv/blrocky/private-video-server/`.
+- Added an isolated nginx HTTPS listener on port `8080` with Basic Auth, a self-signed certificate covering the VM IP, and MP4 byte-range support.
+- The editor continues to use nginx ports `80/443`; no editor routes were changed.
+- Verified unauthorized `401`, authorized `200`, authorized video range `206`, nginx syntax, and the uploaded file checksum on the VM.
+- External access is waiting on the Google Cloud VPC ingress rule `tcp:8080`; the service account lacks permission to create that rule. The password is not stored in the repository.
+
+### Private Video Editor Fallback
+- Date logged: 2026-09-14
+- Added `https://edit.blrocky.com/private-video` as a password-protected fallback route through the editor host, so access does not depend on port `8080`.
+- The route verifies the video password in the existing PHP session, then uses nginx `X-Accel-Redirect` to serve the MP4 efficiently without streaming it through PHP.
+- Added HTTP-to-HTTPS routing for the editor-host fallback and preserved the separate `:8080` Basic Auth listener.
+- Verified the redirect, password login, authenticated player, and authenticated `206 Partial Content` video response.
+- The normal editor login form also recognizes the video password and redirects to the private video player; the editor password continues to open the editor.
+
+### Patreon Icon, Coffin Transparency, And Intro Artifact
+- Date logged: 2026-09-13
+- Added a local Patreon icon in the same image-based button style as the existing social icons, while preserving the configurable Patreon label.
+- Reprocessed `assets/source/coffin-clock-open.png` with ImageMagick flood-fill transparency and lossless WebP output so the open coffin no longer carries its opaque white background.
+- Analyzed loading-animation frames and identified a fixed `121x20` white component at the bottom edge of the source video.
+- Added `assets/media/loading-animation-clean.mp4`, removing only the bottom 20 source pixels and padding back to `1500x1500`; the intro now uses the cleaned asset.
+- Verified the replacement video dimensions, duration, frame count, and the absence of the sampled bottom artifact.
+- Re-encoded the cleaned intro near the original bitrate so the artifact fix does not materially increase the page's loading payload.
+
+### Patreon Removal, UC Directions Link, And Final Media Cleanup
+- Date logged: 2026-09-13
+- Removed the Patreon icon trial from the button at the user's request; the configurable Patreon text and link remain available.
+- Separated the UC pin from the venue website anchor and gave it its own directions link to the UC Theatre address with a higher click priority.
+- Reprocessed the open coffin with a stronger connected-background ImageMagick pass to remove the remaining white fringe without removing the interior illustration.
+- Cropped the loading intro to `1465` content pixels and padded it back to `1500x1500`, removing an additional 15 pixels from the bottom artifact area.
+- Corrected the UC pin image positioning inside its new directions anchor so the visual icon and clickable area remain centered together.
+- Verified the UC anchor markup, local asset responses, video metadata, and sampled intro frames.
+
+### Strict Open-Coffin Cutout And UC Pin Placement
+- Date logged: 2026-09-13
+- Applied a strict exact-white-to-transparent conversion to the right half of the open coffin source, making the white door opening transparent while preserving the surrounding ring and artwork.
+- Restored the UC directions pin to the center of the right marquee panel at `left: 73.49%`; its separate anchor remains above the venue website link at z-index 8.
+- Added a cache-busting asset version to the open-coffin reference so browsers fetch the corrected WebP instead of retaining the prior same-named asset.
+- Verified the final coffin WebP has alpha and the local asset responds successfully.
+
+### Coffin Threshold Comparisons And UC Pin Vertical Reset
+- Date logged: 2026-09-13
+- Generated three local open-coffin comparison files using right-half white/off-white removal at `8%`, `12%`, and `16%` ImageMagick fuzz levels; the production coffin asset was left unchanged for comparison.
+- Restored the UC pin's original vertical placement by positioning its separate high-z-index anchor at the right panel's former bottom relationship: `bottom: 9.5%` desktop and `10%` mobile.
+- Verified the comparison files and homepage CSS references locally.
+
+### Regular Venue Navicon Tags
+- Date logged: 2026-09-13
+- Replaced the three Regular Venues directions image elements with `<navicon>` markers in the fallback homepage and editor-side `site.json` content.
+- Extended the shared masked navicon styling to the tag so it inherits surrounding font, `em` size, color, and text decoration.
+- Added static-content normalization for bare `<navicon>` markers before HTML parsing, preventing the marker from consuming the following address text.
+- Verified `site.json` remains valid and the updated homepage serves locally.
+
+### New Coffin Black-Background Preview
+- Date logged: 2026-09-13
+- Extracted `coffin.tar` into `temp/coffin-preview/source` and confirmed new closed, halfway, and open states share the expected source dimensions.
+- Used a conservative 3% ImageMagick black flood-fill to remove only the connected bitmap background while preserving dark coffin interiors and artwork.
+- Wired the three cleaned WebPs into the local homepage preview with cache-busting URLs; the existing production coffin assets remain unchanged.
+- Verified the cleaned preview states and comparison montage locally.
+
+### Promote Coffin Preview Assets For Deployment
+- Date logged: 2026-09-13
+- Promoted the cleaned coffin states from the local preview into the normal public `assets/coffin-clock-*.webp` paths.
+- Updated the homepage references so GitHub Pages will not depend on the local `temp/` directory.
+- Added local-preview and source-archive ignore rules for `temp/` and `coffin.tar`.
+
+### Independent Tagged Event Link Hover
+- Date logged: 2026-09-13
+- Changed line-hover selectors so a line-level hover is suppressed while a tagged event link is hovered or focused.
+- Applied the configured hover color, font weight, style, underline, and size directly to the individual tagged anchor.
+- Phoenix numbered ticket and calendar links now provide independent visual hover feedback instead of underlining together.
