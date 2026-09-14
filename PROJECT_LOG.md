@@ -11,6 +11,7 @@ This file records concrete project changes made during assisted work. Each entry
 - The dry-run validation caught and corrected GNU tar directory-exclude matching so source asset packages cannot enter the public staging tree.
 - The staging step now handles optional public files that are absent on one source machine without failing Git pathspec validation.
 - Installed the publisher on the VM as `/usr/local/sbin/blrocky-publish-github` and verified its dry run against `/srv/blrocky`; installation does not modify the editor, nginx, or private-video routes.
+- The publisher now selects the VM's existing `github-blrocky-deploy` SSH remote automatically when its private key is present, while retaining HTTPS as the fallback on machines without that key.
 
 ### Public homepage deployment
 - Files touched: public GitHub Pages `master` branch
