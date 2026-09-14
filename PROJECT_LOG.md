@@ -4,6 +4,11 @@ This file records concrete project changes made during assisted work. Each entry
 
 ## 2026-09-13
 
+### Open Graph description
+- Files touched: `index.html`, `PROJECT_LOG.md`
+- Updated the homepage `og:description` metadata to `BL- Rocky Horror Shadow Cast In The SF Bay Area!`.
+- Reason: Social previews should use the requested concise regional description.
+
 ### Public GitHub publisher
 - Files touched: `scripts/publish-github.sh`, `PROJECT_LOG.md`
 - Added a clean-clone publisher for the GitHub Pages `master` branch. It copies only the static homepage, approved public metadata, public assets, and web fonts; excludes source packages and VM/editor/private files; validates staged paths; and supports `--dry-run` before pushing.
@@ -18,6 +23,12 @@ This file records concrete project changes made during assisted work. Each entry
 - Published the current static homepage, cleaned public assets, local web fonts, and deployment metadata as commit `40a033d` using the VM's repository deploy key.
 - The deployment source was staged under `/tmp` on the VM and did not synchronize or overwrite `/srv/blrocky`, the PHP editor, nginx configuration, or private-video files.
 - Reason: Public deployment needs one repeatable command without allowing PHP editor state, private-video configuration, credentials, or unrelated worktree changes to leak into the public repository.
+
+### Sync Join Cast and Patreon settings to VM
+- Files touched: VM `stuffworked-on-a-bit/rhps/data/site.json`, VM `data/backups/site-20260914-033607-before-join-patreon.json`
+- Merged the persisted Join Cast link-mode settings and Patreon button settings into the VM site data without replacing the VM's existing site copy or unrelated settings.
+- The VM editor PHP, editor CSS, nginx configuration, password file, private-video alias, and `:8080` authentication were left unchanged.
+- Reason: The editor controls were already present in the VM code, but the VM data file did not yet contain their saved values.
 
 ## 2026-09-04
 
