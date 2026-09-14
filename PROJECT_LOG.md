@@ -30,6 +30,11 @@ This file records concrete project changes made during assisted work. Each entry
 - The VM editor PHP, editor CSS, nginx configuration, password file, private-video alias, and `:8080` authentication were left unchanged.
 - Reason: The editor controls were already present in the VM code, but the VM data file did not yet contain their saved values.
 
+### Synchronize public layer to VM
+- Files touched: VM `index.html`, VM public `assets/`, VM public `fonts/`, VM `PROJECT_LOG.md`, and related public metadata files
+- Synchronized the current deployed public homepage layer to `/srv/blrocky` after explicit approval, without copying PHP, editor data, nginx configuration, credentials, or private-video files.
+- Reason: The VM's static source should match the live public page while VM-only editor and private-video behavior remains isolated.
+
 ## 2026-09-04
 
 ### Root font zip extraction workflow
