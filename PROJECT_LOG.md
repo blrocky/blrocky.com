@@ -15,6 +15,7 @@ This file records concrete project changes made during assisted work. Each entry
 - Verified the responsive homepage at 320, 390, 768, 1440, and 2560 pixel viewports with no document-level horizontal scrolling or browser script errors after the intro.
 - Verified the directions chooser, mobile archive screen, multi-date archive behavior, and advanced CSS panels in browser smoke tests.
 - Synchronized the reviewed homepage, directions chooser, shared style parser, and editor styling controls to the VM without replacing editor data, account storage, nginx configuration, or private-video files.
+- Published the reviewed public files to the GitHub Pages `master` branch as commit `b442cdb` through the allowlisted VM deployment script.
 
 ## 2026-09-15
 
