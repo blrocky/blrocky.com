@@ -2,6 +2,42 @@
 
 This file records concrete project changes made during assisted work. Each entry should include the date, files touched, what changed, and why.
 
+## 2026-09-18
+
+### Event archive workflow
+- Added shared event-archive logic that moves dated events to `archived` after the final listed occurrence's two-hour public display window ends. Multi-date events remain current while any occurrence is still active or upcoming, and the event's prior status is retained as archive metadata.
+- Added an Archive section to the editor event list, manual archive/restore metadata handling through the Status selector, and archive notices that remain visible for 72 hours.
+- Added an hourly VM cron definition and CLI archiver so expiration does not depend on an editor login. Archived records remain in `events.json`, and every automatic write creates the existing JSON backup before publishing.
+- Added nine focused checks covering single and multi-date expiration, active show windows, draft preservation, manual archive/restore behavior, and 72-hour notice expiration.
+- Deployed the editor archive UI and hourly cron to the VM. The first live run archived the expired `Rhps at the Chabot` draft, retained its previous status in archive metadata, backed up `events.json`, and synchronized the public JSON bucket.
+
+### Responsive homepage and editor styling deployment
+- Verified the responsive homepage at 320, 390, 768, 1440, and 2560 pixel viewports with no document-level horizontal scrolling or browser script errors after the intro.
+- Verified the directions chooser, mobile archive screen, multi-date archive behavior, and advanced CSS panels in browser smoke tests.
+- Synchronized the reviewed homepage, directions chooser, shared style parser, and editor styling controls to the VM without replacing editor data, account storage, nginx configuration, or private-video files.
+
+## 2026-09-15
+
+### Directions choice and text styling foundation
+- Added a keyboard-accessible directions chooser for static and generated location links, with browser-based ordering, an optional saved preference, and Android's installed-app link.
+- Added a shared, scoped CSS declaration parser for advanced text styling and began replacing hover sizes that override fitted marquee text.
+- Public changes are being prepared locally for review; account/email work uses a separate private prototype.
+
+### Advanced editor CSS
+- Added persisted normal/hover CSS declarations to event lines, static info boxes, Join Cast, shop, and Patreon style controls, plus title CSS for static boxes.
+- CSS is scoped to its target and limited to text/border properties; public hover sizing now respects fitted text and touch input.
+- Wired advanced declarations into the editor previews using the same CSS parser as the homepage.
+- Advanced panels now show the generated form CSS, and static titles and Patreon have normal/hover CSS and previews.
+
+### Account prototype prerequisite
+- Installed the VM's matching PHP 8.2 SQLite extension for the private account database. Existing editor PHP and private-video configuration were not changed.
+
+### Private account prototype
+- Added `internal/accounts/` with invitation-based signup, hashed passwords/codes, persistent profiles and notification preferences, session revocation, password changes and operator-issued resets, private export, and account deletion.
+- Added daily cleanup rules (30-day sessions, 90-day history, expiring codes) and seven-day private SQLite backups. Accounts do not grant editor/admin permissions; mail delivery, MFA, and Discord integration remain rollout steps.
+- Wrote `docs/notes/9-15-accounts-mail-plan.md`, consolidating previous auth, mailbot/adminbot, relay, review-queue, backup, and Discord decisions. Fourteen account checks passed on the VM before deployment.
+- Deployed the account prototype at `/accounts-preview/` with private SQLite storage, a daily retention/backup cron, and its own session cookie. The existing editor PHP and port-8080 nginx config retained identical checksums; only an isolated route was added to the HTTPS editor host.
+
 ## 2026-09-13
 
 ### Open Graph description

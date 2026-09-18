@@ -9,6 +9,8 @@
   <title>BL Rocky</title>
   <link rel="stylesheet" href="./fonts/site-fonts.css?v=20260912-stardos">
   <script src="./public-data-config.js"></script>
+  <script src="./assets/style-settings.js"></script>
+  <script src="./assets/directions.js" defer></script>
   <style>
     :root {
       color-scheme: dark;
@@ -577,20 +579,21 @@
     }
 
     .has-line-hover {
-      transition: color .16s ease, font-size .16s ease, text-shadow .16s ease;
+      transition: color .16s ease, text-shadow .16s ease;
     }
 
-    .has-line-hover:hover:not(:has(a:hover)),
-    .has-line-hover:focus-within:not(:has(a:focus-visible)) {
+    @media (hover: hover) and (pointer: fine) {
+    .has-line-hover:not(.measure-normal-text):hover:not(:has(a:hover)),
+    .has-line-hover:not(.measure-normal-text):focus-within:not(:has(a:focus-visible)) {
       color: var(--line-hover-color) !important;
       font-weight: var(--line-hover-font-weight, inherit) !important;
       font-style: var(--line-hover-font-style, inherit) !important;
       text-decoration: var(--line-hover-text-decoration, inherit) !important;
     }
 
-    .has-line-hover-size:hover:not(:has(a:hover)),
-    .has-line-hover-size:focus-within:not(:has(a:focus-visible)) {
-      font-size: var(--line-hover-font-size) !important;
+    .has-line-hover-size:not(.measure-normal-text):hover:not(:has(a:hover)),
+    .has-line-hover-size:not(.measure-normal-text):focus-within:not(:has(a:focus-visible)) {
+      font-size: var(--line-hover-rendered-size, inherit) !important;
     }
 
     .has-line-hover a {
@@ -599,33 +602,38 @@
       text-decoration: inherit;
     }
 
-    .has-line-hover a:hover,
-    .has-line-hover a:focus-visible {
+    .has-line-hover a:not(.measure-normal-text):hover,
+    .has-line-hover a:not(.measure-normal-text):focus-visible {
       color: var(--line-hover-color) !important;
       font-weight: var(--line-hover-font-weight, inherit) !important;
       font-style: var(--line-hover-font-style, inherit) !important;
       text-decoration: var(--line-hover-text-decoration, inherit) !important;
     }
 
-    .has-line-hover.has-line-hover-size a:hover,
-    .has-line-hover.has-line-hover-size a:focus-visible {
-      font-size: var(--line-hover-font-size) !important;
+    .has-line-hover.has-line-hover-size a:not(.measure-normal-text):hover,
+    .has-line-hover.has-line-hover-size a:not(.measure-normal-text):focus-visible {
+      font-size: var(--line-hover-rendered-size, inherit) !important;
     }
 
     .inline-format {
       transition: color .16s ease, font-size .16s ease, font-weight .16s ease, font-style .16s ease;
     }
 
-    .inline-format-hover:hover,
-    .inline-format-hover:focus {
+    .inline-format-hover:not(.measure-normal-text):hover,
+    .inline-format-hover:not(.measure-normal-text):focus {
       color: var(--inline-hover-color, currentColor);
       font-weight: var(--inline-hover-font-weight, inherit);
       font-style: var(--inline-hover-font-style, inherit);
     }
 
-    .inline-format-size-hover:hover,
-    .inline-format-size-hover:focus {
-      font-size: var(--inline-hover-font-size);
+    .inline-format-size-hover:not(.measure-normal-text):hover,
+    .inline-format-size-hover:not(.measure-normal-text):focus {
+      font-size: var(--inline-hover-rendered-size, inherit);
+    }
+    }
+    .has-line-hover a { color: inherit; font: inherit; text-decoration: inherit; }
+    @media (hover: none), (pointer: coarse) {
+      .has-line-hover a:focus-visible { color: var(--line-hover-color); text-decoration: var(--line-hover-text-decoration, underline); }
     }
 
     .generic-event-list {
@@ -2286,17 +2294,19 @@
       transition: color .16s ease;
     }
 
-    details.info-block:hover,
-    details.info-block:focus-within {
+    @media (hover: hover) and (pointer: fine) {
+    details.info-block:not(.measure-normal-text):hover,
+    details.info-block:not(.measure-normal-text):focus-within {
       color: var(--info-hover-color, currentColor) !important;
       font-weight: var(--info-hover-font-weight, inherit) !important;
       font-style: var(--info-hover-font-style, inherit) !important;
       text-decoration: var(--info-hover-text-decoration, inherit) !important;
     }
 
-    details.info-block.has-info-hover-size:hover,
-    details.info-block.has-info-hover-size:focus-within {
-      font-size: var(--info-hover-font-size) !important;
+    details.info-block.has-info-hover-size:not(.measure-normal-text):hover,
+    details.info-block.has-info-hover-size:not(.measure-normal-text):focus-within {
+      font-size: var(--info-hover-rendered-size, inherit) !important;
+    }
     }
 
     details.info-block summary {
@@ -3585,6 +3595,15 @@
         opacity: 1;
       }
     }
+    .directions-picker { color: #fff; background: #171116; border: 1px solid #ff58bf; border-radius: .5rem; padding: 1.25rem; width: min(24rem, calc(100% - 2rem)); max-height: 85dvh; overflow: auto; }
+    .directions-picker::backdrop { background: #000b; }
+    .directions-picker h2 { font: bold 1.35rem system-ui; margin: 0 2rem .75rem 0; }
+    .directions-address { overflow-wrap: anywhere; }
+    .directions-close { position: absolute; right: .5rem; top: .25rem; border: 0; background: none; color: white; font: 2rem system-ui; cursor: pointer; }
+    .directions-options { display: grid; gap: .5rem; margin: 1rem 0; }
+    .directions-options a { padding: .75rem; color: white; background: #352333; text-align: left; border-radius: .25rem; }
+    .directions-options a:focus-visible { outline: 2px solid #ffe14b; }
+    .directions-remember { font: .9rem system-ui; }
   </style>
 </head>
 <body class="is-intro-running">
@@ -5100,7 +5119,52 @@
       node.style.fontWeight = style.bold ? "900" : "";
       node.style.fontStyle = style.italic ? "italic" : "";
       node.style.textDecoration = style.underline ? "underline" : "";
+      window.BLStyle.apply(node, style);
     };
+
+    // Capture the fitted metrics before hover can reapply an unfitted editor size.
+    const protectHoverMetrics = (target) => {
+      if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      if (!(target instanceof Element)) return;
+      const nodes = new Set(target.closest('.has-line-hover,.inline-format-hover,details.info-block') ? [target.closest('.has-line-hover,.inline-format-hover,details.info-block')] : []);
+      if (target.closest('.has-line-hover a')) nodes.add(target.closest('.has-line-hover a'));
+      for (const node of nodes) {
+        // Temporarily turn off only the metric hover declarations to measure normal text.
+        node.classList.add('measure-normal-text');
+        const style = getComputedStyle(node);
+        const size = style.fontSize;
+        node.classList.remove('measure-normal-text');
+        const source = node.closest('.has-line-hover,details.info-block');
+        const settings = source?.__lineStyle || {fontSize: node.style.fontSize || size, hoverFontSize: style.getPropertyValue('--inline-hover-font-size')};
+        let ratio = 1;
+        if (settings?.hoverFontSize && settings.hoverFontSize !== settings.fontSize) {
+          const probe = document.createElement('span');
+          probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none';
+          node.parentElement.append(probe);
+          probe.style.fontSize = normalizeCssSize(settings.fontSize) || size;
+          const normal = parseFloat(getComputedStyle(probe).fontSize);
+          probe.style.fontSize = normalizeCssSize(settings.hoverFontSize);
+          const desired = parseFloat(getComputedStyle(probe).fontSize);
+          probe.remove();
+          if (normal > 0) ratio = Math.max(.95, Math.min(1.05, desired / normal));
+        }
+        const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        const fittedHoverSize = `${parseFloat(size) * ratio / rootSize}rem`;
+        node.style.setProperty('--line-hover-rendered-size', fittedHoverSize);
+        node.style.setProperty('--info-hover-rendered-size', fittedHoverSize);
+        node.style.setProperty('--inline-hover-rendered-size', fittedHoverSize);
+      }
+    };
+    document.addEventListener('pointerover', (event) => protectHoverMetrics(event.target), true);
+    document.addEventListener('pointerdown', (event) => protectHoverMetrics(event.target), true);
+    document.addEventListener('focusin', (event) => protectHoverMetrics(event.target), true);
+    window.addEventListener('resize', () => requestAnimationFrame(() => {
+      document.querySelectorAll('.has-line-hover,.has-line-hover a,.inline-format-hover,details.info-block').forEach((node) => {
+        if (node.matches(':hover,:focus-visible')) protectHoverMetrics(node);
+      });
+    }));
+    window.addEventListener('blrocky-directions-open', pauseMainPageForModal);
+    window.addEventListener('blrocky-directions-close', resumeMainPageAfterModal);
 
     const calendarTagPattern = /<(ticket-link(?:-\d+)?|directions-link|theater-link|calendar-link(?:-\d+|-next)?|calandar-link(?:-\d+|-next)?|calndar-link(?:-\d+|-next)?)(?:\((\d+|next)\))?>([\s\S]*?)<\/\1>/g;
     const isCalendarTag = (tag) => /^(calendar-link|calandar-link|calndar-link)(?:-\d+|-next)?$/.test(String(tag || ""));
@@ -5582,6 +5646,7 @@
         shopText.style.setProperty("--shop-text-weight", shopStyle.bold ? "900" : "800");
         shopText.style.setProperty("--shop-text-style", shopStyle.italic ? "italic" : "normal");
         shopText.style.textDecoration = shopStyle.underline ? "underline" : "none";
+        window.BLStyle.apply(shopText, shopStyle);
       }
       prepareExternalLinks();
     };
@@ -5805,6 +5870,9 @@
           box.style.setProperty("--info-title-weight", style.titleBold ? "900" : "inherit");
           box.classList.toggle("info-underline", Boolean(style.underline));
           box.classList.toggle("has-info-hover-size", Boolean(hoverFontSize));
+          box.__lineStyle = style;
+          window.BLStyle.apply(box, style);
+          window.BLStyle.apply(box.querySelector("summary"), { rawCss: style.titleRawCss, rawHoverCss: style.titleRawHoverCss });
         });
       } catch (error) {
         console.warn("Could not load static info settings. Use a local server instead of file:// for static previews.", error);
@@ -5914,6 +5982,8 @@
         line.style.setProperty("--line-hover-text-decoration", style.hoverUnderline ? "underline" : (style.underline ? "underline" : "none"));
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
+        line.__lineStyle = style;
+        window.BLStyle.apply(line, style);
       };
       const primaryTicketUrl = (event) => (Array.isArray(event.ticketUrls) ? event.ticketUrls.find(Boolean) : "") || event.ticketUrl || "#";
 
@@ -6130,6 +6200,8 @@
         line.style.setProperty("--line-hover-text-decoration", style.hoverUnderline ? "underline" : (style.underline ? "underline" : "none"));
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
+        line.__lineStyle = style;
+        window.BLStyle.apply(line, style);
       };
       const primaryTicketUrl = (event) => (Array.isArray(event.ticketUrls) ? event.ticketUrls.find(Boolean) : "") || event.ticketUrl || "#";
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
@@ -6309,6 +6381,8 @@
         line.style.setProperty("--line-hover-text-decoration", style.hoverUnderline ? "underline" : (style.underline ? "underline" : "none"));
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
+        line.__lineStyle = style;
+        window.BLStyle.apply(line, style);
       };
       const primaryTicketUrl = (event) => (Array.isArray(event.ticketUrls) ? event.ticketUrls.find(Boolean) : "") || event.ticketUrl || "#";
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
@@ -6451,6 +6525,8 @@
         line.style.setProperty("--line-hover-text-decoration", style.hoverUnderline ? "underline" : (style.underline ? "underline" : "none"));
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
+        line.__lineStyle = style;
+        window.BLStyle.apply(line, style);
       };
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
         if (isCalendarTag(tag)) return calendarDownloadHref(event, venue, indexToken, inner);
@@ -6589,6 +6665,8 @@
         line.style.setProperty("--line-hover-text-decoration", style.hoverUnderline ? "underline" : (style.underline ? "underline" : "none"));
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
+        line.__lineStyle = style;
+        window.BLStyle.apply(line, style);
       };
       const taggedLinkHref = (tag, event, venue, indexToken = "", inner = "") => {
         if (isCalendarTag(tag)) return calendarDownloadHref(event, venue, indexToken, inner);
@@ -6797,6 +6875,8 @@
         line.style.setProperty("--line-hover-text-decoration", style.hoverUnderline ? "underline" : (style.underline ? "underline" : "none"));
         line.classList.add("has-line-hover");
         line.classList.toggle("has-line-hover-size", Boolean(hoverFontSize));
+        line.__lineStyle = style;
+        window.BLStyle.apply(line, style);
       };
       const fitLines = () => {
         list.querySelectorAll(".generic-event-copy").forEach((copyBlock) => {
