@@ -8,7 +8,7 @@ This file records concrete project changes made during assisted work. Each entry
 - Added shared event-archive logic that moves dated events to `archived` after the final listed occurrence's two-hour public display window ends. Multi-date events remain current while any occurrence is still active or upcoming, and the event's prior status is retained as archive metadata.
 - Added an Archive section to the editor event list, manual archive/restore metadata handling through the Status selector, and archive notices that remain visible for 72 hours.
 - Added an hourly VM cron definition and CLI archiver so expiration does not depend on an editor login. Archived records remain in `events.json`, and every automatic write creates the existing JSON backup before publishing.
-- Added nine focused checks covering single and multi-date expiration, active show windows, draft preservation, manual archive/restore behavior, and 72-hour notice expiration.
+- Added nine focused checks covering single and multi-date expiration, active show windows, prior-status preservation, manual archive/restore behavior, and 72-hour notice expiration.
 - Deployed the editor archive UI and hourly cron to the VM. The first live run archived the expired `Rhps at the Chabot` draft, retained its previous status in archive metadata, backed up `events.json`, and synchronized the public JSON bucket.
 
 ### Responsive homepage and editor styling deployment
